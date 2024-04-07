@@ -106,7 +106,7 @@ class _ChartPageState extends State<ChartPage> {
                   ),
                   borderRadius: BorderRadius.circular(12), // 테두리 모서리를 둥글게 만듭니다.
                 ),
-                child: MyBarChart(),
+                child: MyLineChart(),
               ),
 
               SizedBox(height: 10.0),

@@ -1,3 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:healthcare/firebase/firebase_options.dart';
+
 import 'package:flutter/material.dart';
 import 'screen/main_screen.dart';
 import 'screen/googlemap_screen.dart';
@@ -5,6 +8,7 @@ import 'screen/googlemap_screen.dart';
 void main() {
   runApp(MyApp());
 }
+
 
 class MyApp extends StatefulWidget {
   @override
