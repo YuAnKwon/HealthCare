@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare/http/main_get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'chart_screen.dart';
 
 class HealthInfoPage extends StatefulWidget {
@@ -11,12 +13,16 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
   Map<String, dynamic> data = {};
 
   Future<void> fetchData() async {
-    try {
-      data = await DataFetcher.fetchData();
-      setState(() {});
-    } catch (e) {
-      print('Error: $e');
-      // 오류 처리 로직 추가
+    final response = await http.get(Uri.parse('https://85be-124-51-172-80.ngrok-free.app/main'),
+      headers: {
+        'ngrok-skip-browser-warning': '69420',
+      },);
+    if (response.statusCode == 200) {
+      setState(() {
+        data = jsonDecode(response.body);
+      });
+    } else {
+      throw Exception('Failed to load data');
     }
   }
 
