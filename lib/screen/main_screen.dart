@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare/screen/chart_screen.dart';
+import 'package:healthcare/http/main_get.dart';
+import 'chart_screen.dart';
 
 class HealthInfoPage extends StatefulWidget {
   @override
@@ -7,11 +8,22 @@ class HealthInfoPage extends StatefulWidget {
 }
 
 class _HealthInfoPageState extends State<HealthInfoPage> {
-  void navigateToDetail(BuildContext context, String title) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ChartPage(title: title)),
-    );
+  Map<String, dynamic> data = {};
+
+  Future<void> fetchData() async {
+    try {
+      data = await DataFetcher.fetchData();
+      setState(() {});
+    } catch (e) {
+      print('Error: $e');
+      // 오류 처리 로직 추가
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
   }
 
   @override
@@ -55,12 +67,12 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                 data: [
                   StatData(
                       title: '맥박',
-                      value: '80 bpm',
+                      value: '${data['last_workout_data']['heart']} bpm',
                       height: 100.0,
                       imagePath: 'assets/pulse_icon.png'),
                   StatData(
                       title: '산소포화도',
-                      value: '98 %',
+                      value: '${data['last_workout_data']['oxygen']} %',
                       height: 100.0,
                       imagePath: 'assets/oxygen_icon.png'),
                 ],
@@ -70,12 +82,12 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                 data: [
                   StatData(
                       title: '체온',
-                      value: '36.5 °C',
+                      value: '${data['last_workout_data']['temp']} °C',
                       height: 100.0,
                       imagePath: 'assets/temp_icon.png'),
                   StatData(
                       title: '체중',
-                      value: '50.2 kg',
+                      value: '${data['last_workout_data']['today_weight']} kg',
                       height: 100.0,
                       imagePath: 'assets/weight_icon.png'),
                 ],
@@ -111,7 +123,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                           ),
                           SizedBox(height: 8.0),
                           Text(
-                            '2.34 km',
+                            '${data['last_workout_data']['distance']} km',
                             style: TextStyle(
                               fontSize: 20.0,
                               fontWeight: FontWeight.bold,
@@ -123,7 +135,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                   ),
                 ),
               ),
-        // '이동시간' 카드
+              // '이동시간' 카드
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: InkWell(
@@ -152,7 +164,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                           ),
                           SizedBox(height: 8.0),
                           Text(
-                            '1시간 34분',
+                            '${data['last_workout_data']['workout_time']} ',
                             style: TextStyle(
                               fontSize: 20.0,
                               fontWeight: FontWeight.bold,
@@ -164,11 +176,17 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void navigateToDetail(BuildContext context, String title) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ChartPage(title: title)),
     );
   }
 }
@@ -189,11 +207,11 @@ class StatRow extends StatelessWidget {
     return Row(
       children: data
           .map((stat) => Expanded(
-                child: StatCard(
-                  data: stat,
-                  onTap: () => onTap(stat.title),
-                ),
-              ))
+        child: StatCard(
+          data: stat,
+          onTap: () => onTap(stat.title),
+        ),
+      ))
           .toList(),
     );
   }
@@ -207,9 +225,9 @@ class StatData {
 
   StatData(
       {required this.title,
-      required this.value,
-      required this.height,
-      required this.imagePath});
+        required this.value,
+        required this.height,
+        required this.imagePath});
 }
 
 class StatCard extends StatelessWidget {
