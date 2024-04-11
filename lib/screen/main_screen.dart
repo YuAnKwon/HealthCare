@@ -48,14 +48,14 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('에러'),
-            content: Text('데이터 불러오기에 실패했습니다.'),
+            title: const Text('에러'),
+            content: const Text('데이터 불러오기에 실패했습니다.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('확인'),
+                child: const Text('확인'),
               ),
             ],
           );
@@ -78,14 +78,14 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
       // 데이터 가져오기 실패 시 메시지 표시
       return Scaffold(
         body: Center(
-          child: Text('보행보조차가 켜져있는지 확인해주세요'),
+          child: const Text('보행보조차가 켜져있는지 확인해주세요'),
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('홍길동님의 건강정보'),
+        title: const Text('홍길동님의 건강정보'),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.menu),
@@ -100,20 +100,12 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: '24.01.10',
-                  items: <String>['24.01.10', '25.01.11', '26.01.11']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    // 선택된 날짜 처리 로직
-                  },
-                  underline: Container(),
+                child: Text(
+                  '${data?['last_workout_data']?['date'] ?? ''} ',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
 
@@ -122,7 +114,8 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                 data: [
                   StatData(
                       title: '맥박',
-                      value: '${data?['last_workout_data']?['heart'] ?? ''} bpm',
+                      value:
+                          '${data?['last_workout_data']?['heart'] ?? ''} bpm',
                       height: 100.0,
                       imagePath: 'assets/pulse_icon.png'),
                   StatData(
@@ -142,7 +135,8 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                       imagePath: 'assets/temp_icon.png'),
                   StatData(
                       title: '체중',
-                      value: '${data?['last_workout_data']?['today_weight'] ?? ''} kg',
+                      value:
+                          '${data?['last_workout_data']?['today_weight'] ?? ''} kg',
                       height: 100.0,
                       imagePath: 'assets/weight_icon.png'),
                 ],
@@ -221,7 +215,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                           ),
                           SizedBox(height: 8.0),
                           Text(
-                            '${data?['last_workout_data']?['workout_time'] ?? ''} ',
+                            '${formatWorkoutTime(data?['last_workout_data']?['workout_time'] ?? '')}',
                             style: TextStyle(
                               fontSize: 20.0,
                               fontWeight: FontWeight.bold,

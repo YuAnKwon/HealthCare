@@ -92,3 +92,70 @@ class StatCard extends StatelessWidget {
     );
   }
 }
+
+class StatRowWidget extends StatelessWidget {
+  final List<StatData> data;
+  final Function(String) onTap;
+
+  const StatRowWidget({
+    required this.data,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: data
+          .map((statData) => GestureDetector(
+        onTap: () => onTap(statData.title),
+        child: Column(
+          children: [
+            Image.asset(
+              statData.imagePath,
+              height: 24.0,
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              statData.title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 4.0),
+            Text(
+              statData.value,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ))
+          .toList(),
+    );
+  }
+}
+
+
+// 01:42:24 로 받을 시간 데이터를 1시간 42로 바꿔주는 함수
+String formatWorkoutTime(String workoutTime) {
+  if (workoutTime.isEmpty) return '';
+
+  List<String> parts = workoutTime.split(':');
+
+  int hours = int.parse(parts[0]);
+  int minutes = int.parse(parts[1]);
+  int seconds = int.parse(parts[2]);
+
+  String formattedTime = '';
+
+  if (hours > 0) {
+    formattedTime += '${hours}시간 ';
+  }
+
+  if (minutes > 0) {
+    formattedTime += '${minutes}분';
+  }
+
+  return formattedTime.trim();
+}
