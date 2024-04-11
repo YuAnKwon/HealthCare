@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:healthcare/http/Api_Resource.dart';
+import 'package:healthcare/http/ApiResource.dart';
 import 'package:http/http.dart' as http;
 
 class DataFetcher {
