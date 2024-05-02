@@ -137,7 +137,7 @@ class StatRowWidget extends StatelessWidget {
 }
 
 
-// 01:42:24 로 받을 시간 데이터를 1시간 42로 바꿔주는 함수
+// 01:42로 받을 시간 데이터를 1시간 42로 바꿔주는 함수
 String formatWorkoutTime(String workoutTime) {
   if (workoutTime.isEmpty) return '';
 
@@ -145,7 +145,6 @@ String formatWorkoutTime(String workoutTime) {
 
   int hours = int.parse(parts[0]);
   int minutes = int.parse(parts[1]);
-  int seconds = int.parse(parts[2]);
 
   String formattedTime = '';
 
@@ -159,3 +158,4 @@ String formatWorkoutTime(String workoutTime) {
 
   return formattedTime.trim();
 }
+

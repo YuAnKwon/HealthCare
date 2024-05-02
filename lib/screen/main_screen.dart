@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare/http/ApiResource.dart';
-import 'package:healthcare/screen/statRowData.dart';
+import 'package:healthcare/widgets/main_screen_widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../network/ApiResource.dart';
 import 'chart_screen.dart';
 
 class HealthInfoPage extends StatefulWidget {

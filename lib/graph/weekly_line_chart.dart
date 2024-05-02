@@ -14,22 +14,12 @@ class _MyLineChartState extends State<MyLineChart> {
     const Color(0xff02d39a),
   ];
 
-
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        AspectRatio(
-          aspectRatio: 1.30,
-            child: LineChart(
-              mainData(),
-            ),
-          ),
-        SizedBox(
-          width: 60,
-          height: 34,
-        ),
-      ],
+    return Expanded( // 또는 Flexible
+      child: LineChart(
+        mainData(),
+      ),
     );
   }
 
@@ -115,7 +105,7 @@ class _MyLineChartState extends State<MyLineChart> {
         },
         getDrawingVerticalLine: (value) {
           return const FlLine(
-            color:  Color(0xff68737d),
+            color: Color(0xff68737d),
             strokeWidth: 1,
           );
         },

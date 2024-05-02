@@ -1,6 +1,23 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+class BarChartSample3 extends StatefulWidget {
+  const BarChartSample3({super.key});
+
+  @override
+  State<StatefulWidget> createState() => BarChartSample3State();
+}
+
+class BarChartSample3State extends State<BarChartSample3> {
+  @override
+  Widget build(BuildContext context) {
+    return const AspectRatio(
+      aspectRatio: 1.6,
+      child: MyBarChart(),
+    );
+  }
+}
+
 class MyBarChart extends StatelessWidget {
   const MyBarChart();
 
@@ -209,21 +226,4 @@ class MyBarChart extends StatelessWidget {
         ),
 
       ];
-}
-
-class BarChartSample3 extends StatefulWidget {
-  const BarChartSample3({super.key});
-
-  @override
-  State<StatefulWidget> createState() => BarChartSample3State();
-}
-
-class BarChartSample3State extends State<BarChartSample3> {
-  @override
-  Widget build(BuildContext context) {
-    return const AspectRatio(
-      aspectRatio: 1.6,
-      child: MyBarChart(),
-    );
-  }
 }
