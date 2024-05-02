@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 import '../network/7days_data.dart';
 import '../network/ApiResource.dart';
 
-
 class ChartPage extends StatefulWidget {
   final String title;
   ChartPage({required this.title});
@@ -65,6 +64,7 @@ class _ChartPageState extends State<ChartPage> {
             .map((json) => HealthData.fromJson(json, fieldEndpoint))
             .toList();
       });
+      print(dataList);
     } else {
       throw Exception('Failed to load data');
     }
@@ -117,7 +117,7 @@ class _ChartPageState extends State<ChartPage> {
           ),
           padding: EdgeInsets.symmetric(vertical: 8.0),
           child: Text(
-            '2024.01.04 ~ 2024.01.10',
+            getDateRange(),
             style: TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _ChartPageState extends State<ChartPage> {
           padding: const EdgeInsets.all(16.0),
           alignment: Alignment.centerLeft,
           child: Text(
-            '${widget.title}',
+            '${widget.title} ${widget.title != '이동시간' ? '(${widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km' : widget.title == '산소포화도' ? '%' : widget.title == '맥박' ? 'bpm' : ''})' : ''}',
             style: TextStyle(
               fontSize: 20.0,
             ),
@@ -137,6 +137,21 @@ class _ChartPageState extends State<ChartPage> {
         ),
       ],
     );
+  }
+
+  // 데이터 받은 날짜 며칠부터 며칠까지인지 표시
+  String getDateRange() {
+    if (HealthDataList.isEmpty) {
+      return ''; // 데이터가 없으면 빈 문자열 반환
+    }
+
+    // 첫 번째 데이터의 날짜
+    String firstDate = HealthDataList.first.date;
+    // 마지막 데이터의 날짜
+    String lastDate = HealthDataList.last.date;
+
+    // 첫 번째와 마지막 날짜로 날짜 범위 생성
+    return '$firstDate ~ $lastDate';
   }
 
   @override
@@ -176,7 +191,7 @@ class _ChartPageState extends State<ChartPage> {
                 padding: const EdgeInsets.all(16.0),
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '평균 ${widget.title} : ${widget.title == '이동시간' ? '3.20' : widget.title == '이동거리' ? '3.20 km' : widget.title == '체중' ? '3.20 kg' : widget.title == '체온' ? '3.20 °C' : widget.title == '산소포화도' ? '3.20 %' : widget.title == '맥박' ? '3.20 bpm' : ''}',
+                  '평균 ${widget.title} : ${widget.title == '이동시간' ? '${calculateAverageTime()}' : '${calculateAverage().toStringAsFixed(1)} ${widget.title == '이동거리' ? 'km' : widget.title == '체중' ? 'kg' : widget.title == '체온' ? '°C' : widget.title == '산소포화도' ? '%' : widget.title == '맥박' ? 'bpm' : ''}'}',
                   style: TextStyle(
                     fontSize: 20.0,
                   ),
@@ -189,13 +204,52 @@ class _ChartPageState extends State<ChartPage> {
     );
   }
 
+// 평균값 계산
+  double calculateAverage() {
+    double totalValue = 0.0;
+    for (final data in HealthDataList) {
+      totalValue += data.value.toDouble();
+    }
+    return totalValue / HealthDataList.length;
+  }
+
+// 이동시간 평균값 계산
+  String calculateAverageTime() {
+    if (HealthDataList.isEmpty) {
+      return '데이터 없음'; // 데이터가 비어 있는 경우 처리
+    }
+
+    int totalHours = 0;
+    int totalMinutes = 0;
+
+    for (final data in HealthDataList) {
+      final timeParts = data.value.split(':');
+      final hours = int.parse(timeParts[0]);
+      final minutes = int.parse(timeParts[1]);
+
+      totalHours += hours;
+      totalMinutes += minutes;
+    }
+
+    // 분 단위가 60분을 넘어가면 시간에 반영
+    totalHours += totalMinutes ~/ 60;
+    totalMinutes %= 60;
+
+    // 평균값 계산
+    final averageHours = totalHours ~/ HealthDataList.length;
+    final averageMinutes = totalMinutes ~/ HealthDataList.length;
+
+    // 시간과 분을 합쳐서 반환
+    return '$averageHours시간 $averageMinutes분';
+  }
+
   Widget _buildChart() {
     switch (widget.title) {
       case '맥박':
       case '산소포화도':
       case '체온':
       case '체중':
-        return MyLineChart();
+        return MyLineChart(dataList: HealthDataList);
       case '이동거리':
       case '이동시간':
         return MyBarChart();

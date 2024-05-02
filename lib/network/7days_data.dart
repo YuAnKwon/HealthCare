@@ -1,11 +1,11 @@
 class HealthData {
   final String date;
-  final double value;
+  final dynamic value;
 
   HealthData({required this.date, required this.value});
 
   factory HealthData.fromJson(Map<String, dynamic> json, String field) {
-    double value = 0.0;
+    dynamic value;
 
     switch (field) {
       case 'distance':
@@ -24,7 +24,7 @@ class HealthData {
         value = json['today_weight'];
         break;
       case 'workout_time':
-        value = json['workout_time'];
+        value = json[field].toString(); // 이동시간 데이터는 문자열로 변환
         break;
       default:
         break;

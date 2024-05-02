@@ -1,8 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../network/7days_data.dart';
+import 'dart:math';
 
 class MyLineChart extends StatefulWidget {
-  const MyLineChart({super.key});
+  final List<HealthData> dataList;
+  const MyLineChart({required this.dataList, super.key});
 
   @override
   State<MyLineChart> createState() => _MyLineChartState();
@@ -10,13 +13,14 @@ class MyLineChart extends StatefulWidget {
 
 class _MyLineChartState extends State<MyLineChart> {
   List<Color> gradientColors = [
-    const Color(0xff23b6e6),
-    const Color(0xff02d39a),
+    const Color(0xffB3A5D1),
+    const Color(0xff8562BB),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Expanded( // 또는 Flexible
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
       child: LineChart(
         mainData(),
       ),
@@ -24,48 +28,27 @@ class _MyLineChartState extends State<MyLineChart> {
   }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 0:
-        text = const Text('4', style: style);
-        break;
-      case 1:
-        text = const Text('5', style: style);
-        break;
-      case 2:
-        text = const Text('6', style: style);
-        break;
-      case 3:
-        text = const Text('7', style: style);
-        break;
-      case 4:
-        text = const Text('8', style: style);
-        break;
-      case 5:
-        text = const Text('9', style: style);
-        break;
-      case 6:
-        text = const Text('10', style: style);
-        break;
-      default:
-        text = const Text('', style: style);
-        break;
+    int index = value.toInt();
+    if (index >= 0 && index < widget.dataList.length) {
+      String date = widget.dataList[index].date;
+      return Text(
+        date.split('-').last, // 일자만 사용
+        style: TextStyle(
+          color: Colors.black54,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      );
     }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: text,
-    );
+    return Container(); // 데이터가 없을 경우 빈 컨테이너 반환
   }
+
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
     const style = TextStyle(
+      color: Colors.black54,
       fontWeight: FontWeight.bold,
-      fontSize: 15,
+      fontSize: 14,
     );
     String text;
     switch (value.toInt()) {
@@ -92,6 +75,19 @@ class _MyLineChartState extends State<MyLineChart> {
   }
 
   LineChartData mainData() {
+    double minY = 200;
+    double maxY = -2;
+
+    List<FlSpot> spots = [];
+    for (int i = 0; i < widget.dataList.length; i++) {
+      int dayIndex = i % widget.dataList.length; // x값
+      double value = widget.dataList[i].value.toDouble(); // y 값
+      spots.add(FlSpot(dayIndex.toDouble(),value));
+
+      if (value < minY) minY = value ;
+      if (value > maxY) maxY = value;
+    }
+
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -131,7 +127,7 @@ class _MyLineChartState extends State<MyLineChart> {
             showTitles: true,
             interval: 1,
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 42,
+            reservedSize: 30,
           ),
         ),
       ),
@@ -139,27 +135,19 @@ class _MyLineChartState extends State<MyLineChart> {
         show: true,
         border: Border.all(color: const Color(0xff37434d)),
       ),
-      minX: 0,
-      maxX: 6,
-      minY: 35,
+      minY: minY-0.5,
+      maxY: maxY.ceilToDouble(),
+
       lineBarsData: [
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 36.0),
-            FlSpot(1, 36.3),
-            FlSpot(2, 36.8),
-            FlSpot(3, 37.2),
-            FlSpot(4, 36.0),
-            FlSpot(5, 36.2),
-            FlSpot(6, 38.0),
-          ],
+          spots: spots,
           isCurved: false,
           gradient: LinearGradient(
             colors: gradientColors,
           ),
           barWidth: 3,
           isStrokeCapRound: true,
-          dotData: const FlDotData(
+          dotData: FlDotData(
             show: true,
           ),
           belowBarData: BarAreaData(
