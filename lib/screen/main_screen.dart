@@ -113,7 +113,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
               StatRow(
                 data: [
                   StatData(
-                      title: '맥박',
+                      title: '심박수',
                       value:
                           '${data?['last_workout_data']?['heart'] ?? ''} bpm',
                       height: 100.0,

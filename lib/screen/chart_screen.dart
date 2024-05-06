@@ -33,7 +33,7 @@ class _ChartPageState extends State<ChartPage> {
       case '이동거리':
         fieldEndpoint = 'distance';
         break;
-      case '맥박':
+      case '심박수':
         fieldEndpoint = 'heart';
         break;
       case '산소포화도':
@@ -129,7 +129,7 @@ class _ChartPageState extends State<ChartPage> {
           padding: const EdgeInsets.all(16.0),
           alignment: Alignment.centerLeft,
           child: Text(
-            '${widget.title} ${widget.title != '이동시간' ? '(${widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km' : widget.title == '산소포화도' ? '%' : widget.title == '맥박' ? 'bpm' : ''})' : ''}',
+            '${widget.title} ${widget.title != '이동시간' ? '(${widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km':  widget.title == '체중' ? 'kg' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : ''})' : ''}',
             style: TextStyle(
               fontSize: 20.0,
             ),
@@ -175,7 +175,7 @@ class _ChartPageState extends State<ChartPage> {
               _buildHeader(),
               SizedBox(height: 10.0),
               Container(
-                padding: const EdgeInsets.fromLTRB(13, 40, 20, 20),
+                padding: const EdgeInsets.fromLTRB(15, 40, 15, 15),
                 height: 300,
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -191,7 +191,7 @@ class _ChartPageState extends State<ChartPage> {
                 padding: const EdgeInsets.all(16.0),
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '평균 ${widget.title} : ${widget.title == '이동시간' ? '${calculateAverageTime()}' : '${calculateAverage().toStringAsFixed(1)} ${widget.title == '이동거리' ? 'km' : widget.title == '체중' ? 'kg' : widget.title == '체온' ? '°C' : widget.title == '산소포화도' ? '%' : widget.title == '맥박' ? 'bpm' : ''}'}',
+                  '평균 ${widget.title} : ${widget.title == '이동시간' ? '${calculateAverageTime()}' : '${calculateAverage().toStringAsFixed(1)} ${widget.title == '이동거리' ? 'km' : widget.title == '체중' ? 'kg' : widget.title == '체온' ? '°C' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : ''}'}',
                   style: TextStyle(
                     fontSize: 20.0,
                   ),
@@ -245,11 +245,11 @@ class _ChartPageState extends State<ChartPage> {
 
   Widget _buildChart() {
     switch (widget.title) {
-      case '맥박':
+      case '심박수':
       case '산소포화도':
       case '체온':
       case '체중':
-        return MyLineChart(dataList: HealthDataList);
+        return MyLineChart(dataList: HealthDataList,title : widget.title);
       case '이동거리':
       case '이동시간':
         return MyBarChart();
