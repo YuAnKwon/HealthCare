@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../network/fetchData.dart';
+import '../network/fetch_data.dart';
 
 class MyBarChart extends StatefulWidget {
   final String title;
@@ -24,6 +24,25 @@ class _MyBarChartState extends State<MyBarChart> {
       ),
     );
   }
+
+  // Widget build(BuildContext context) {
+  //   if (widget.dataList.isEmpty) {
+  //     return Container();
+  //   }
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.horizontal, // 수평 스크롤 가능하도록 설정
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(5.0),
+  //       child: SizedBox(
+  //         // 그래프의 너비를 화면보다 크게 설정하여 수평 스크롤이 가능하도록 합니다.
+  //         width: MediaQuery.of(context).size.width * 2,
+  //         child: BarChart(
+  //           mainData(),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     int index = value.toInt();
@@ -66,27 +85,32 @@ class _MyBarChartState extends State<MyBarChart> {
       barTouchData: BarTouchData(
         enabled: true,
         touchTooltipData: BarTouchTooltipData(
-          tooltipBgColor: Colors.transparent,
-          tooltipPadding: EdgeInsets.zero,
-          tooltipMargin: 8,
+          tooltipBgColor: Colors.white,
+          tooltipBorder: const BorderSide(color: Color(0xffA595C8)),
           getTooltipItem: (
-            BarChartGroupData group,
-            int groupIndex,
-            BarChartRodData rod,
-            int rodIndex,
-          ) {
+              BarChartGroupData group,
+              int groupIndex,
+              BarChartRodData rod,
+              int rodIndex,
+              ) {
+            String valueText;
+            String date = widget.dataList[group.x.toInt()].date;
+            if (widget.title == '이동시간') {
+              valueText = rod.toY.toInt().toString();
+            } else {
+              valueText = rod.toY.toStringAsFixed(1);
+            }
             return BarTooltipItem(
-              widget.title == '이동시간'
-                  ? rod.toY.toInt().toString()
-                  : rod.toY.toStringAsFixed(1),
+              '$date\n$valueText ${widget.title == '이동시간' ? ' 분' : ' km'}',
               const TextStyle(
-                color: const Color(0xff8562BB),
+                color: Color(0xff8562BB),
                 fontWeight: FontWeight.bold,
               ),
             );
           },
         ),
       ),
+
       titlesData: FlTitlesData(
         show: true,
         rightTitles: const AxisTitles(
@@ -114,7 +138,7 @@ class _MyBarChartState extends State<MyBarChart> {
       ),
       borderData: FlBorderData(
         show: true,
-        border: Border(
+        border: const Border(
           bottom: BorderSide(
             color: Colors.grey,
             width: 2,
@@ -146,6 +170,7 @@ class _MyBarChartState extends State<MyBarChart> {
 
   List<BarChartGroupData> createBarGroups() {
     List<BarChartGroupData> barGroups = [];
+    List<int> showTooltips = const [];
 
     for (int i = 0; i < widget.dataList.length; i++) {
       HealthData data = widget.dataList[i];
@@ -161,7 +186,7 @@ class _MyBarChartState extends State<MyBarChart> {
             color: const Color(0xff8562BB),
           )
         ],
-        showingTooltipIndicators: [0],
+        showingTooltipIndicators: showTooltips,
       );
       barGroups.add(barGroup);
     }

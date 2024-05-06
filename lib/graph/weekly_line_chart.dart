@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../network/fetchData.dart';
+import '../network/fetch_data.dart';
 
 class MyLineChart extends StatefulWidget {
   final String title;
@@ -19,6 +19,9 @@ class _MyLineChartState extends State<MyLineChart> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.dataList.isEmpty) {
+      return Container();
+    }
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: LineChart(
@@ -79,17 +82,29 @@ class _MyLineChartState extends State<MyLineChart> {
       lineTouchData: LineTouchData(
         enabled: true,
         touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Colors.white,
+          tooltipBorder: const BorderSide(color: Color(0xffA595C8)),
           getTooltipItems: (List<LineBarSpot> touchedSpots) {
             return touchedSpots.map((LineBarSpot touchedSpot) {
               final flSpot = touchedSpot;
               if (flSpot.barIndex == 0) {
                 String date = widget.dataList[flSpot.x.toInt()].date;
+                String unit = '';
+                if (widget.title == '산소포화도') {
+                  unit = '%';
+                } else if (widget.title == '심박수') {
+                  unit = 'bpm';
+                } else if (widget.title == '체온') {
+                  unit = '°C';
+                } else if (widget.title == '체중') {
+                  unit = 'kg';
+                }
+                String tooltipText =
+                    '$date\n${flSpot.y.toStringAsFixed(unit == '%' || unit == 'bpm' ? 0 : 1)} $unit';
                 return LineTooltipItem(
-                  widget.title == '산소포화도' || widget.title == '심박수'
-                      ? '$date\n${flSpot.y.toStringAsFixed(0)}'
-                      : '$date\n${flSpot.y.toStringAsFixed(1)}',
-                  TextStyle(
-                    color: Colors.white,
+                  tooltipText,
+                  const TextStyle(
+                    color: Color(0xff8562BB),
                     fontWeight: FontWeight.bold,
                   ),
                 );

@@ -5,7 +5,7 @@ import 'package:healthcare/graph/weekly_bar_chart.dart';
 import 'package:healthcare/graph/weekly_line_chart.dart';
 import 'package:http/http.dart' as http;
 
-import '../network/fetchData.dart';
+import '../network/fetch_data.dart';
 import '../network/ApiResource.dart';
 
 class ChartPage extends StatefulWidget {
@@ -28,6 +28,21 @@ class _ChartPageState extends State<ChartPage> {
 
   Future<void> fetchData() async {
     String fieldEndpoint = '';
+    String periodEndpoint = '';
+
+    switch (selectedIndex) {
+      case 0:
+        periodEndpoint = 'days';
+        break;
+      case 1:
+        periodEndpoint = 'months';
+        break;
+      case 2:
+        periodEndpoint = 'years';
+        break;
+      default:
+        break;
+    }
 
     switch (widget.title) {
       case '이동거리':
@@ -53,12 +68,12 @@ class _ChartPageState extends State<ChartPage> {
     }
 
     final response = await http.get(
-      Uri.parse('${ApiResource.serverUrl}/days/$fieldEndpoint'),
+      Uri.parse('${ApiResource.serverUrl}/$periodEndpoint/$fieldEndpoint'),
       headers: {"ngrok-skip-browser-warning": "22"},
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> dataList = json.decode(response.body)['7days_data'];
+      final List<dynamic> dataList = json.decode(response.body)['${selectedIndex == 0 ? '7days' : selectedIndex == 1 ? '31days' : '12months'}_data'];
       setState(() {
         HealthDataList = dataList
             .map((json) => HealthData.fromJson(json, fieldEndpoint))
@@ -66,9 +81,25 @@ class _ChartPageState extends State<ChartPage> {
       });
       print(dataList);
     } else {
-      throw Exception('Failed to load data');
+      // 데이터 불러오기 실패 시 에러 메시지 출력
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text('오류발생'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // 에러 다이얼로그 닫기
+              },
+              child: Text('확인'),
+            ),
+          ],
+        ),
+      );
     }
   }
+
 
   Widget _buildHeader() {
     return Column(
@@ -78,17 +109,17 @@ class _ChartPageState extends State<ChartPage> {
           children: [
             ToggleButtons(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('7일'),
+                 Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: const Text('7일'),
+                ),
+                 Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: const Text('31일'),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('31일'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text('12개월'),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: const Text('12개월'),
                 ),
               ],
               isSelected: [
@@ -99,12 +130,13 @@ class _ChartPageState extends State<ChartPage> {
               onPressed: (int index) {
                 setState(() {
                   selectedIndex = index;
+                  fetchData();
                 });
               },
             ),
           ],
         ),
-        SizedBox(height: 20.0),
+        const SizedBox(height: 20.0),
         Container(
           width: double.infinity,
           alignment: Alignment.center,
@@ -115,22 +147,22 @@ class _ChartPageState extends State<ChartPage> {
             ),
             borderRadius: BorderRadius.circular(4.0),
           ),
-          padding: EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Text(
             getDateRange(),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        SizedBox(height: 20.0),
+        const SizedBox(height: 20.0),
         Container(
           padding: const EdgeInsets.all(16.0),
           alignment: Alignment.centerLeft,
           child: Text(
             '${widget.title} (${widget.title == '이동시간' ? '분' : (widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km':  widget.title == '체중' ? 'kg' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : '')})',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20.0,
             ),
           ),
@@ -158,10 +190,10 @@ class _ChartPageState extends State<ChartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('분석 결과'),
+        title: const Text('분석 결과'),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -173,7 +205,7 @@ class _ChartPageState extends State<ChartPage> {
           child: Column(
             children: <Widget>[
               _buildHeader(),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               Container(
                 padding: const EdgeInsets.fromLTRB(15, 40, 15, 15),
                 height: 300,
@@ -186,13 +218,13 @@ class _ChartPageState extends State<ChartPage> {
                 ),
                 child: _buildChart(),
               ),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               Container(
                 padding: const EdgeInsets.all(16.0),
                 alignment: Alignment.centerLeft,
                 child: Text(
                   '평균 ${widget.title} : ${widget.title == '이동시간' ? calculateAverageTime() : '${calculateAverage().toStringAsFixed(1)} ${widget.title == '이동거리' ? 'km' : widget.title == '체중' ? 'kg' : widget.title == '체온' ? '°C' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : ''}'}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20.0,
                   ),
                 ),
@@ -267,7 +299,7 @@ class _ChartPageState extends State<ChartPage> {
       case '이동시간':
         return MyBarChart(dataList: HealthDataList,title : widget.title);
       default:
-        return Container(child: Text('데이터 불러오기에 실패했습니다.'),);
+        return Container(child: const Text('데이터 불러오기에 실패했습니다.'),);
     }
   }
 }
