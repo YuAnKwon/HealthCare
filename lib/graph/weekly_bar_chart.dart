@@ -25,7 +25,6 @@ class _MyBarChartState extends State<MyBarChart> {
     );
   }
 
-
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     int index = value.toInt();
     if (index >= 0 && index < widget.dataList.length) {
@@ -62,7 +61,6 @@ class _MyBarChartState extends State<MyBarChart> {
     return Container(); // maxY 값일 때는 빈 컨테이너 반환
   }
 
-
   BarChartData mainData() {
     return BarChartData(
       barTouchData: BarTouchData(
@@ -78,13 +76,14 @@ class _MyBarChartState extends State<MyBarChart> {
             int rodIndex,
           ) {
             return BarTooltipItem(
-              widget.title == '이동시간' ? rod.toY.toInt().toString() : rod.toY.toStringAsFixed(1),
+              widget.title == '이동시간'
+                  ? rod.toY.toInt().toString()
+                  : rod.toY.toStringAsFixed(1),
               const TextStyle(
                 color: const Color(0xff8562BB),
                 fontWeight: FontWeight.bold,
               ),
             );
-
           },
         ),
       ),
@@ -152,7 +151,7 @@ class _MyBarChartState extends State<MyBarChart> {
       HealthData data = widget.dataList[i];
       String stringValue = data.value.toString();
 
-      double toYValue= double.parse(stringValue);
+      double toYValue = double.parse(stringValue);
 
       BarChartGroupData barGroup = BarChartGroupData(
         x: i,
@@ -168,7 +167,4 @@ class _MyBarChartState extends State<MyBarChart> {
     }
     return barGroups;
   }
-
-
-
 }

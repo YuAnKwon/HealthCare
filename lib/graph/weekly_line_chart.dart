@@ -76,9 +76,36 @@ class _MyLineChartState extends State<MyLineChart> {
     }
 
     return LineChartData(
-      minY: widget.title == '심박수' ? (minY ~/ 5) * 5: minY.floorToDouble(),
-      maxY: maxY.ceilToDouble(),
+      lineTouchData: LineTouchData(
+        enabled: true,
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+            return touchedSpots.map((LineBarSpot touchedSpot) {
+              final flSpot = touchedSpot;
+              if (flSpot.barIndex == 0) {
+                String date = widget.dataList[flSpot.x.toInt()].date;
+                return LineTooltipItem(
+                  widget.title == '산소포화도' || widget.title == '심박수'
+                      ? '$date\n${flSpot.y.toStringAsFixed(0)}'
+                      : '$date\n${flSpot.y.toStringAsFixed(1)}',
+                  TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }
+              return null;
+            }).toList();
+          },
+        ),
+      ),
 
+      minY: widget.title == '심박수'
+          ? (minY ~/ 10) * 10
+          : widget.title == '산소포화도'
+              ? minY - 2
+              : minY.floorToDouble(),
+      maxY: maxY.ceilToDouble(),
       titlesData: FlTitlesData(
         show: true,
         rightTitles: const AxisTitles(
@@ -98,7 +125,8 @@ class _MyLineChartState extends State<MyLineChart> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10
+            interval:
+                widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10
             getTitlesWidget: leftTitleWidgets,
             reservedSize: 40,
           ),
@@ -113,7 +141,8 @@ class _MyLineChartState extends State<MyLineChart> {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval: widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10,
+        horizontalInterval:
+            widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10,
         getDrawingHorizontalLine: (value) {
           return const FlLine(
             color: Colors.grey,
