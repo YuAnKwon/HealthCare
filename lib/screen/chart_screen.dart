@@ -5,7 +5,7 @@ import 'package:healthcare/graph/weekly_bar_chart.dart';
 import 'package:healthcare/graph/weekly_line_chart.dart';
 import 'package:http/http.dart' as http;
 
-import '../network/7days_data.dart';
+import '../network/fetchData.dart';
 import '../network/ApiResource.dart';
 
 class ChartPage extends StatefulWidget {

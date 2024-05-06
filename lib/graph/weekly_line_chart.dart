@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../network/7days_data.dart';
+import '../network/fetchData.dart';
 
 class MyLineChart extends StatefulWidget {
   final String title;
