@@ -254,7 +254,7 @@ class _ChartPageState extends State<ChartPage> {
       case '이동시간':
         return MyBarChart();
       default:
-        return Container();
+        return Container(child: Text('데이터 불러오기에 실패했습니다.'),);
     }
   }
 }

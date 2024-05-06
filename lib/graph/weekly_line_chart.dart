@@ -40,37 +40,17 @@ class _MyLineChartState extends State<MyLineChart> {
         ),
       );
     }
-    return Container(); // 데이터가 없을 경우 빈 컨테이너 반환
+    return Container();
   }
 
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
+      const style = TextStyle(
       color: Colors.black54,
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
-    String text;
-    switch (value.toInt()) {
-      case 36:
-        text = '36';
-        break;
-      case 37:
-        text = '37';
-        break;
-      case 38:
-        text = '38';
-        break;
-      case 39:
-        text = '39';
-        break;
-      case 40:
-        text = '40';
-        break;
-      default:
-        return Container();
-    }
-
+    String text= value.toInt().toString();
     return Text(text, style: style, textAlign: TextAlign.left);
   }
 
