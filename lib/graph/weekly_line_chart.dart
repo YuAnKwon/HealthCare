@@ -76,7 +76,7 @@ class _MyLineChartState extends State<MyLineChart> {
     }
 
     return LineChartData(
-      minY: minY.floorToDouble(),
+      minY: widget.title == '심박수' ? (minY ~/ 5) * 5: minY.floorToDouble(),
       maxY: maxY.ceilToDouble(),
 
       titlesData: FlTitlesData(
@@ -90,7 +90,7 @@ class _MyLineChartState extends State<MyLineChart> {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
+            //reservedSize: 30,
             interval: 1,
             getTitlesWidget: bottomTitleWidgets,
           ),
@@ -98,27 +98,25 @@ class _MyLineChartState extends State<MyLineChart> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval:
-                widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10
+            interval: widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 30,
+            reservedSize: 40,
           ),
         ),
       ),
       borderData: FlBorderData(
         show: true,
-        border: Border.all(color: const Color(0xff37434d)),
+        border: Border.all(color: Colors.grey),
       ),
 
       // 그리드
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval:
-            widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10,
+        horizontalInterval: widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10,
         getDrawingHorizontalLine: (value) {
           return const FlLine(
-            color: Color(0xff708090),
+            color: Colors.grey,
             strokeWidth: 1,
           );
         },

@@ -129,7 +129,7 @@ class _ChartPageState extends State<ChartPage> {
           padding: const EdgeInsets.all(16.0),
           alignment: Alignment.centerLeft,
           child: Text(
-            '${widget.title} ${widget.title != '이동시간' ? '(${widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km':  widget.title == '체중' ? 'kg' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : ''})' : ''}',
+            '${widget.title} (${widget.title == '이동시간' ? '분' : (widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km':  widget.title == '체중' ? 'kg' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : '')})',
             style: TextStyle(
               fontSize: 20.0,
             ),
@@ -191,7 +191,7 @@ class _ChartPageState extends State<ChartPage> {
                 padding: const EdgeInsets.all(16.0),
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '평균 ${widget.title} : ${widget.title == '이동시간' ? '${calculateAverageTime()}' : '${calculateAverage().toStringAsFixed(1)} ${widget.title == '이동거리' ? 'km' : widget.title == '체중' ? 'kg' : widget.title == '체온' ? '°C' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : ''}'}',
+                  '평균 ${widget.title} : ${widget.title == '이동시간' ? calculateAverageTime() : '${calculateAverage().toStringAsFixed(1)} ${widget.title == '이동거리' ? 'km' : widget.title == '체중' ? 'kg' : widget.title == '체온' ? '°C' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : ''}'}',
                   style: TextStyle(
                     fontSize: 20.0,
                   ),
@@ -204,44 +204,57 @@ class _ChartPageState extends State<ChartPage> {
     );
   }
 
-// 평균값 계산
+// 이동시간 평균값 계산
   double calculateAverage() {
     double totalValue = 0.0;
+    int count = 0;
+
     for (final data in HealthDataList) {
-      totalValue += data.value.toDouble();
+      if (data.value != 0) { // 0을 제외하고
+        totalValue += data.value.toDouble();
+        count++;
+      }
     }
-    return totalValue / HealthDataList.length;
+
+    // 0을 제외한 값이 없는 경우 0을 반환
+    if (count == 0) return 0.0;
+
+    return totalValue / count;
   }
 
-// 이동시간 평균값 계산
+
   String calculateAverageTime() {
     if (HealthDataList.isEmpty) {
-      return '데이터 없음'; // 데이터가 비어 있는 경우 처리
+      return ''; // 데이터가 비어 있는 경우 처리
     }
 
-    int totalHours = 0;
     int totalMinutes = 0;
+    int totalCount = 0; // 이동시간이 0이 아닌 데이터의 수를 세는 변수
 
     for (final data in HealthDataList) {
-      final timeParts = data.value.split(':');
-      final hours = int.parse(timeParts[0]);
-      final minutes = int.parse(timeParts[1]);
-
-      totalHours += hours;
-      totalMinutes += minutes;
+      final minutes = data.value as int;
+      if (minutes > 0) {
+        totalMinutes += minutes;
+        totalCount++; // 이동시간이 0이 아닌 경우에만 데이터 수 증가
+      }
     }
 
-    // 분 단위가 60분을 넘어가면 시간에 반영
-    totalHours += totalMinutes ~/ 60;
-    totalMinutes %= 60;
+    // 이동시간이 0인 경우 데이터가 없으므로 평균 계산이 불가능
+    if (totalCount == 0) {
+      return '';
+    }
 
-    // 평균값 계산
-    final averageHours = totalHours ~/ HealthDataList.length;
-    final averageMinutes = totalMinutes ~/ HealthDataList.length;
+    // 데이터 수로 나누어 평균값을 구함
+    final averageMinutes = totalMinutes ~/ totalCount;
+
+    // 시간과 분을 계산
+    final averageHours = averageMinutes ~/ 60;
+    final remainingMinutes = averageMinutes % 60;
 
     // 시간과 분을 합쳐서 반환
-    return '$averageHours시간 $averageMinutes분';
+    return '$averageHours시간 $remainingMinutes분';
   }
+
 
   Widget _buildChart() {
     switch (widget.title) {
@@ -252,7 +265,7 @@ class _ChartPageState extends State<ChartPage> {
         return MyLineChart(dataList: HealthDataList,title : widget.title);
       case '이동거리':
       case '이동시간':
-        return MyBarChart();
+        return MyBarChart(dataList: HealthDataList,title : widget.title);
       default:
         return Container(child: Text('데이터 불러오기에 실패했습니다.'),);
     }

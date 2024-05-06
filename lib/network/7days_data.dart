@@ -24,7 +24,12 @@ class HealthData {
         value = json['today_weight'];
         break;
       case 'workout_time':
-        value = json[field].toString(); // 이동시간 데이터는 문자열로 변환
+      // 이동시간 문자열을 분 단위로 변환
+        String workoutTimeString = json['workout_time'];
+        List<String> parts = workoutTimeString.split(':');
+        int hours = int.parse(parts[0]);
+        int minutes = int.parse(parts[1]);
+        value = hours * 60 + minutes;
         break;
       default:
         break;
