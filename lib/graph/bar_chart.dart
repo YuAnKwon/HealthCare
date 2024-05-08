@@ -5,7 +5,12 @@ import '../network/fetch_data.dart';
 class MyBarChart extends StatefulWidget {
   final String title;
   final List<HealthData> dataList;
-  const MyBarChart({required this.dataList, required this.title, super.key});
+  final int selectedIndex;
+  const MyBarChart(
+      {required this.dataList,
+      required this.title,
+      required this.selectedIndex,
+      super.key});
 
   @override
   State<StatefulWidget> createState() => _MyBarChartState();
@@ -24,25 +29,6 @@ class _MyBarChartState extends State<MyBarChart> {
       ),
     );
   }
-
-  // Widget build(BuildContext context) {
-  //   if (widget.dataList.isEmpty) {
-  //     return Container();
-  //   }
-  //   return SingleChildScrollView(
-  //     scrollDirection: Axis.horizontal, // 수평 스크롤 가능하도록 설정
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(5.0),
-  //       child: SizedBox(
-  //         // 그래프의 너비를 화면보다 크게 설정하여 수평 스크롤이 가능하도록 합니다.
-  //         width: MediaQuery.of(context).size.width * 2,
-  //         child: BarChart(
-  //           mainData(),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
     int index = value.toInt();
@@ -67,32 +53,52 @@ class _MyBarChartState extends State<MyBarChart> {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    if (value != meta.max) {
-      return Text(
-        value.toInt().toString(),
-        style: const TextStyle(
-          color: Colors.black54,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-      );
+    if (widget.title == '이동시간') {
+      // 이동시간인 경우에는 20의 배수인 값만 표시
+      if (value % 20 != 0) {
+        return Container();
+      }
+    } else if (widget.title == '이동거리') {
+      // 이동거리인 경우에는 정수인 값만 표시
+      if (value.toInt() != value) {
+        return Container();
+      }
     }
-    return Container(); // maxY 값일 때는 빈 컨테이너 반환
+
+    // 위의 조건에 해당하지 않는 경우 값 표시
+    return Text(
+      value.toString(),
+      style: const TextStyle(
+        color: Colors.black54,
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+      ),
+    );
   }
 
   BarChartData mainData() {
+    double maxY = widget.dataList.map((data) => data.value).reduce((a, b) => a > b ? a : b);
+    bool isIntegerY = maxY % 1 == 0;
+    bool isMultipleOf20 = maxY % 20 == 0;
+
+    // 상단 및 하단의 경계선.
+    BorderSide topBorder = isIntegerY ? BorderSide(color: Colors.grey, width: 1) : BorderSide.none;
+    BorderSide bottomBorder = BorderSide(color: Colors.grey, width: 2);
+
     return BarChartData(
       barTouchData: BarTouchData(
         enabled: true,
         touchTooltipData: BarTouchTooltipData(
+          fitInsideVertically: widget.selectedIndex == 1 ? true : false,
+          fitInsideHorizontally: true,
           tooltipBgColor: Colors.white,
           tooltipBorder: const BorderSide(color: Color(0xffA595C8)),
           getTooltipItem: (
-              BarChartGroupData group,
-              int groupIndex,
-              BarChartRodData rod,
-              int rodIndex,
-              ) {
+            BarChartGroupData group,
+            int groupIndex,
+            BarChartRodData rod,
+            int rodIndex,
+          ) {
             String valueText;
             String date = widget.dataList[group.x.toInt()].date;
             if (widget.title == '이동시간') {
@@ -110,7 +116,6 @@ class _MyBarChartState extends State<MyBarChart> {
           },
         ),
       ),
-
       titlesData: FlTitlesData(
         show: true,
         rightTitles: const AxisTitles(
@@ -132,17 +137,16 @@ class _MyBarChartState extends State<MyBarChart> {
             showTitles: true,
             interval: widget.title == '이동시간' ? 20 : 1,
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 40,
+            reservedSize: 30,
           ),
         ),
       ),
       borderData: FlBorderData(
         show: true,
-        border: const Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 2,
-          ),
+        border: Border(
+          top: widget.title == '이동시간' && isMultipleOf20 ? topBorder :
+          widget.title == '이동거리' ? topBorder : BorderSide.none,
+          bottom: bottomBorder,
         ),
       ),
       barGroups: createBarGroups(),
@@ -151,17 +155,10 @@ class _MyBarChartState extends State<MyBarChart> {
         drawVerticalLine: false,
         horizontalInterval: widget.title == '이동시간' ? 20 : 1,
         getDrawingHorizontalLine: (value) {
-          if (value % 1 == 0) {
-            return const FlLine(
-              color: Colors.grey,
-              strokeWidth: 1,
-            );
-          } else {
-            return const FlLine(
-              color: Colors.transparent,
-              strokeWidth: 0,
-            );
-          }
+          return FlLine(
+            color: Colors.grey,
+            strokeWidth: 1,
+          );
         },
       ),
       alignment: BarChartAlignment.spaceBetween,

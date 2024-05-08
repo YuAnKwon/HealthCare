@@ -5,7 +5,12 @@ import '../network/fetch_data.dart';
 class MyLineChart extends StatefulWidget {
   final String title;
   final List<HealthData> dataList;
-  const MyLineChart({required this.dataList, required this.title, super.key});
+  final int selectedIndex;
+  const MyLineChart(
+      {required this.dataList,
+      required this.title,
+      required this.selectedIndex,
+      super.key});
 
   @override
   State<MyLineChart> createState() => _MyLineChartState();
@@ -39,9 +44,13 @@ class _MyLineChartState extends State<MyLineChart> {
 
       String label = day;
       if (index == widget.dataList.length - 1) {
-        // 데이터 리스트의 마지막 값일 때만 '일' 추가
-        label += '일';
+        if (widget.selectedIndex == 2) {
+          label += '월';
+        } else {
+          label += '일';
+        }
       }
+
       return Text(
         label,
         style: const TextStyle(
@@ -60,9 +69,21 @@ class _MyLineChartState extends State<MyLineChart> {
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
-    String text = value.toInt().toString();
-    return Text(text, style: style, textAlign: TextAlign.left);
+    // 심박수이고 최대 값이 10의 배수인 경우에만 표시
+    if (widget.title == '심박수') {
+      if (value % 10 == 0) {
+        String text = value.toInt().toString();
+        return Text(text, style: style, textAlign: TextAlign.left);
+      } else {
+        return Container();
+      }
+    } else {
+      String text = value.toInt().toString();
+      return Text(text, style: style, textAlign: TextAlign.left);
+    }
   }
+
+
 
   LineChartData mainData() {
     double minY = 200;
@@ -82,6 +103,8 @@ class _MyLineChartState extends State<MyLineChart> {
       lineTouchData: LineTouchData(
         enabled: true,
         touchTooltipData: LineTouchTooltipData(
+          fitInsideVertically: widget.selectedIndex == 1 ? true : false,
+          fitInsideHorizontally: true,
           tooltipBgColor: Colors.white,
           tooltipBorder: const BorderSide(color: Color(0xffA595C8)),
           getTooltipItems: (List<LineBarSpot> touchedSpots) {
@@ -140,10 +163,9 @@ class _MyLineChartState extends State<MyLineChart> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval:
-                widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10
+            interval: widget.title == '심박수' ? 10 : 1,
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 40,
+            reservedSize: 30,
           ),
         ),
       ),
@@ -156,8 +178,7 @@ class _MyLineChartState extends State<MyLineChart> {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval:
-            widget.title == '심박수' ? 10 : 1, // heart 데이터만 받을 때 interval을 10,
+        horizontalInterval: widget.title == '심박수' ? 10 : 1,
         getDrawingHorizontalLine: (value) {
           return const FlLine(
             color: Colors.grey,

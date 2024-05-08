@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:healthcare/graph/weekly_bar_chart.dart';
-import 'package:healthcare/graph/weekly_line_chart.dart';
+import 'package:healthcare/graph/bar_chart.dart';
+import 'package:healthcare/graph/line_chart.dart';
 import 'package:http/http.dart' as http;
 
 import '../network/fetch_data.dart';
@@ -73,7 +73,8 @@ class _ChartPageState extends State<ChartPage> {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> dataList = json.decode(response.body)['${selectedIndex == 0 ? '7days' : selectedIndex == 1 ? '31days' : '12months'}_data'];
+      final List<dynamic> dataList = json.decode(response.body)[
+          '${selectedIndex == 0 ? '7days' : selectedIndex == 1 ? '31days' : '12months'}_data'];
       setState(() {
         HealthDataList = dataList
             .map((json) => HealthData.fromJson(json, fieldEndpoint))
@@ -81,7 +82,6 @@ class _ChartPageState extends State<ChartPage> {
       });
       print(dataList);
     } else {
-      // 데이터 불러오기 실패 시 에러 메시지 출력
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -90,7 +90,7 @@ class _ChartPageState extends State<ChartPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // 에러 다이얼로그 닫기
+                Navigator.pop(context);
               },
               child: Text('확인'),
             ),
@@ -100,7 +100,6 @@ class _ChartPageState extends State<ChartPage> {
     }
   }
 
-
   Widget _buildHeader() {
     return Column(
       children: <Widget>[
@@ -109,17 +108,35 @@ class _ChartPageState extends State<ChartPage> {
           children: [
             ToggleButtons(
               children: <Widget>[
-                 Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Text('7일'),
-                ),
-                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Text('31일'),
+                  child: SizedBox(
+                    width: 40,
+                    child: const Text(
+                      '7일',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Text('12개월'),
+                  child: SizedBox(
+                    width: 40,
+                    child: const Text(
+                      '31일',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SizedBox(
+                    width: 45,
+                    child: const Text(
+                      '12개월',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
               ],
               isSelected: [
@@ -161,7 +178,7 @@ class _ChartPageState extends State<ChartPage> {
           padding: const EdgeInsets.all(16.0),
           alignment: Alignment.centerLeft,
           child: Text(
-            '${widget.title} (${widget.title == '이동시간' ? '분' : (widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km':  widget.title == '체중' ? 'kg' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : '')})',
+            '${widget.title} (${widget.title == '이동시간' ? '분' : (widget.title == '체온' ? '°C' : widget.title == '이동거리' ? 'km' : widget.title == '체중' ? 'kg' : widget.title == '산소포화도' ? '%' : widget.title == '심박수' ? 'bpm' : '')})',
             style: const TextStyle(
               fontSize: 20.0,
             ),
@@ -176,7 +193,6 @@ class _ChartPageState extends State<ChartPage> {
     if (HealthDataList.isEmpty) {
       return ''; // 데이터가 없으면 빈 문자열 반환
     }
-
     // 첫 번째 데이터의 날짜
     String firstDate = HealthDataList.first.date;
     // 마지막 데이터의 날짜
@@ -207,7 +223,7 @@ class _ChartPageState extends State<ChartPage> {
               _buildHeader(),
               const SizedBox(height: 10.0),
               Container(
-                padding: const EdgeInsets.fromLTRB(15, 40, 15, 15),
+                padding: const EdgeInsets.fromLTRB(10, 30, 15, 15),
                 height: 300,
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -242,7 +258,8 @@ class _ChartPageState extends State<ChartPage> {
     int count = 0;
 
     for (final data in HealthDataList) {
-      if (data.value != 0) { // 0을 제외하고
+      if (data.value != 0) {
+        // 0을 제외하고
         totalValue += data.value.toDouble();
         count++;
       }
@@ -253,7 +270,6 @@ class _ChartPageState extends State<ChartPage> {
 
     return totalValue / count;
   }
-
 
   String calculateAverageTime() {
     if (HealthDataList.isEmpty) {
@@ -287,19 +303,50 @@ class _ChartPageState extends State<ChartPage> {
     return '$averageHours시간 $remainingMinutes분';
   }
 
-
   Widget _buildChart() {
     switch (widget.title) {
       case '심박수':
       case '산소포화도':
       case '체온':
       case '체중':
-        return MyLineChart(dataList: HealthDataList,title : widget.title);
+        // selectedIndex가 1일 때만 SingleChildScrollView를 사용하여 수평 스크롤이 가능하도록 함
+        return selectedIndex == 1
+            ? SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(0, 10,0,0),
+                  width: MediaQuery.of(context).size.width * 2,
+                  child: MyLineChart(
+                    dataList: HealthDataList,
+                    title: widget.title,
+                    selectedIndex: selectedIndex,
+                  ),
+                ))
+            : MyLineChart(
+                dataList: HealthDataList,
+                title: widget.title,
+                selectedIndex: selectedIndex);
       case '이동거리':
       case '이동시간':
-        return MyBarChart(dataList: HealthDataList,title : widget.title);
+        return selectedIndex == 1
+            ? SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 2.2,
+                  child: MyBarChart(
+                    dataList: HealthDataList,
+                    title: widget.title,
+                    selectedIndex: selectedIndex,
+                  ),
+                ))
+            : MyBarChart(
+                dataList: HealthDataList,
+                title: widget.title,
+                selectedIndex: selectedIndex);
       default:
-        return Container(child: const Text('데이터 불러오기에 실패했습니다.'),);
+        return Container(
+          child: const Text('데이터 불러오기에 실패했습니다.'),
+        );
     }
   }
 }

@@ -85,7 +85,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('홍길동님의 건강정보'),
+        title: Text('${data?['last_workout_data']?['name'] ?? ''}님의 건강정보'),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.menu),
