@@ -37,8 +37,11 @@ class _MyBarChartState extends State<MyBarChart> {
       String day = int.parse(date.split('-').last).toString();
       String label = day;
       if (index == widget.dataList.length - 1) {
-        // 데이터 리스트의 마지막 값일 때만 '일' 추가
-        label += '일';
+        if (widget.selectedIndex == 2) {
+          label += '월';
+        } else {
+          label += '일';
+        }
       }
       return Text(
         label,
@@ -67,7 +70,7 @@ class _MyBarChartState extends State<MyBarChart> {
 
     // 위의 조건에 해당하지 않는 경우 값 표시
     return Text(
-      value.toString(),
+      value.toInt().toString(),
       style: const TextStyle(
         color: Colors.black54,
         fontWeight: FontWeight.bold,
@@ -77,7 +80,7 @@ class _MyBarChartState extends State<MyBarChart> {
   }
 
   BarChartData mainData() {
-    double maxY = widget.dataList.map((data) => data.value).reduce((a, b) => a > b ? a : b);
+    double maxY = widget.dataList.map((data) => data.value.toDouble()).reduce((a, b) => a > b ? a : b);
     bool isIntegerY = maxY % 1 == 0;
     bool isMultipleOf20 = maxY % 20 == 0;
 

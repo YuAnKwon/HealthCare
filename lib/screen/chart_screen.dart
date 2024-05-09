@@ -303,46 +303,60 @@ class _ChartPageState extends State<ChartPage> {
     return '$averageHours시간 $remainingMinutes분';
   }
 
+  double getChartWidth() {
+    int dataCount = HealthDataList.length;
+    if (dataCount < 10) {
+      return MediaQuery.of(context).size.width * 1;
+    } else if (dataCount < 20) {
+      return MediaQuery.of(context).size.width * 1.5;
+    } else if (dataCount <= 28) {
+      return MediaQuery.of(context).size.width * 2;
+    } else {
+      return MediaQuery.of(context).size.width * 2.2;
+    }
+  }
+
   Widget _buildChart() {
+    double chartWidth = getChartWidth();
+
     switch (widget.title) {
       case '심박수':
       case '산소포화도':
       case '체온':
       case '체중':
-        // selectedIndex가 1일 때만 SingleChildScrollView를 사용하여 수평 스크롤이 가능하도록 함
         return selectedIndex == 1
             ? SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(0, 10,0,0),
-                  width: MediaQuery.of(context).size.width * 2,
-                  child: MyLineChart(
-                    dataList: HealthDataList,
-                    title: widget.title,
-                    selectedIndex: selectedIndex,
-                  ),
-                ))
-            : MyLineChart(
+            scrollDirection: Axis.horizontal,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(0, 10,0,0),
+              width: chartWidth,
+              child: MyLineChart(
                 dataList: HealthDataList,
                 title: widget.title,
-                selectedIndex: selectedIndex);
+                selectedIndex: selectedIndex,
+              ),
+            ))
+            : MyLineChart(
+            dataList: HealthDataList,
+            title: widget.title,
+            selectedIndex: selectedIndex);
       case '이동거리':
       case '이동시간':
         return selectedIndex == 1
             ? SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 2.2,
-                  child: MyBarChart(
-                    dataList: HealthDataList,
-                    title: widget.title,
-                    selectedIndex: selectedIndex,
-                  ),
-                ))
-            : MyBarChart(
+            scrollDirection: Axis.horizontal,
+            child: Container(
+              width: chartWidth,
+              child: MyBarChart(
                 dataList: HealthDataList,
                 title: widget.title,
-                selectedIndex: selectedIndex);
+                selectedIndex: selectedIndex,
+              ),
+            ))
+            : MyBarChart(
+            dataList: HealthDataList,
+            title: widget.title,
+            selectedIndex: selectedIndex);
       default:
         return Container(
           child: const Text('데이터 불러오기에 실패했습니다.'),
