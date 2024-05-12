@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:healthcare/widgets/main_screen_widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import '../network/ApiResource.dart';
 import 'chart_screen.dart';
+import 'googlemap_screen.dart';
 
 class HealthInfoPage extends StatefulWidget {
   @override
@@ -14,6 +14,7 @@ class HealthInfoPage extends StatefulWidget {
 class _HealthInfoPageState extends State<HealthInfoPage> {
   Map<String, dynamic>? data;
   bool _loading = false;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -230,6 +231,31 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_pin),
+            label: 'Location',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: (int index) {
+          setState(() {
+            _selectedIndex = index;
+            // 추가: location이 클릭되면 인덱스를 1로 설정하여 GoogleMap 화면으로 이동
+            if (_selectedIndex == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyGoogleMap()),
+              );
+            }
+          });
+        },
       ),
     );
   }

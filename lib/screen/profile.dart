@@ -1,10 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:healthcare/network/ApiResource.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
-}
+import 'main_screen.dart';
 
-class MyApp extends StatelessWidget {
+class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,60 +33,166 @@ class UserInfoForm extends StatefulWidget {
 
 class _UserInfoFormState extends State<UserInfoForm> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+
+  Future<void> _saveUserInfo() async {
+    if (_formKey.currentState?.validate() == true) {
+      final name = _nameController.text;
+      final age = int.tryParse(_ageController.text);
+      final height = double.tryParse(_heightController.text);
+      final weight = double.tryParse(_weightController.text);
+
+      if (age == null || height == null || weight == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('나이, 키, 체중은 숫자여야 합니다.')),
+        );
+        return;
+      }
+
+      try {
+        final response = await http.post(
+          Uri.parse('${ApiResource.serverUrl}/profile'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'name': name,
+            'age': age,
+            'height': height,
+            'init_weight': weight,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('데이터 저장 성공')),
+          );
+          // prefs에 저장여부 저장.
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('hasProfile', true);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HealthInfoPage()),
+          );
+          print(prefs);
+
+        } else {
+          _showErrorDialog('Error: ${response.statusCode}', response.body);
+        }
+
+      } catch (e) {
+        _showErrorDialog('Network Error', '서버에 연결할 수 없습니다.');
+      }
+    }
+  }
+
+  void _showErrorDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    // MediaQuery.of(context).viewInsets.bottom 값을 사용하여
-    // 키보드가 화면에 표시될 때 필요한 만큼의 하단 패딩을 추가합니다.
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
-
     return SingleChildScrollView(
-      reverse: true, // 키보드가 열릴 때 입력 필드로 스크롤
+      reverse: true,
       child: Padding(
-        padding: EdgeInsets.only(bottom: bottomPadding), // 키보드 높이만큼 패딩 추가
+        padding: EdgeInsets.only(bottom: bottomPadding),
         child: Form(
           key: _formKey,
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 InputBox(
                   child: TextFormField(
-                    decoration: InputDecoration(labelText: '이름:', border: InputBorder.none),
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: '이름:', border: InputBorder.none),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '이름을 입력해주세요.';
+                      }
+                      if (double.tryParse(value) != null || int.tryParse(value) != null) {
+                        return '이름을 올바르게 입력해주세요.';
+                      }
+                      return null;
+                    },
                   ),
                 ),
-                SizedBox(height: 10), // 간격 추가
+                const SizedBox(height: 10),
                 InputBox(
                   child: TextFormField(
-                    decoration: InputDecoration(labelText: '나이:', border: InputBorder.none),
+                    controller: _ageController,
+                    decoration: const InputDecoration(labelText: '나이:', border: InputBorder.none),
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '나이를 입력해주세요.';
+                      }
+                      if (int.tryParse(value) == null) {
+                        return '숫자를 입력해주세요.';
+                      }
+                      return null;
+                    },
                   ),
                 ),
-                SizedBox(height: 10), // 간격 추가
+                const SizedBox(height: 10),
                 InputBox(
                   child: TextFormField(
-                    decoration: InputDecoration(labelText: '키:', border: InputBorder.none),
-                    keyboardType: TextInputType.number,
+                    controller: _heightController,
+                    decoration: const InputDecoration(labelText: '키 (cm):', border: InputBorder.none),
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '키를 입력해주세요.';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return '숫자를 입력해주세요.';
+                      }
+                      return null;
+                    },
                   ),
                 ),
-                SizedBox(height: 10), // 간격 추가
+                const SizedBox(height: 10),
                 InputBox(
                   child: TextFormField(
-                    decoration: InputDecoration(labelText: '몸무게:', border: InputBorder.none),
-                    keyboardType: TextInputType.number,
+                    controller: _weightController,
+                    decoration: const InputDecoration(labelText: '체중 (kg):', border: InputBorder.none),
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '체중을 입력해주세요.';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return '숫자를 입력해주세요.';
+                      }
+                      return null;
+                    },
                   ),
                 ),
-                SizedBox(height: 20), // 버튼 위의 간격 추가
+                const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // 폼 제출 로직
-                      if (_formKey.currentState?.validate() == true) {
-                        // 유효성 검사를 통과하면 실행될 코드
-                      }
-                    },
-                    child: Text('저장'),
+                    onPressed: _saveUserInfo,
+                    child: const Text('저장'),
                   ),
                 ),
               ],
@@ -95,10 +203,6 @@ class _UserInfoFormState extends State<UserInfoForm> {
     );
   }
 }
-
-
-
-
 
 class InputBox extends StatelessWidget {
   final Widget child;

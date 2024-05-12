@@ -110,7 +110,7 @@ class _MyBarChartState extends State<MyBarChart> {
               valueText = rod.toY.toStringAsFixed(1);
             }
             return BarTooltipItem(
-              '$date\n$valueText ${widget.title == '이동시간' ? ' 분' : ' km'}',
+              '$date\n$valueText ${widget.title == '이동시간' ? '분' : ' km'}',
               const TextStyle(
                 color: Color(0xff8562BB),
                 fontWeight: FontWeight.bold,

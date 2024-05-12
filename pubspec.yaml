@@ -39,7 +39,7 @@ dependencies:
   http: ^1.2.0
   flutter_local_notifications: ^17.0.0
   google_maps_flutter: ^2.5.3
-
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

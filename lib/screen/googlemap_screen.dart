@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:healthcare/screen/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -11,6 +12,7 @@ class MyGoogleMap extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyGoogleMap> {
+  int _selectedIndex = 1;
 
   String _address = '주소를 가져오는 중...';
   late GoogleMapController mapController;
@@ -117,6 +119,31 @@ class _MyAppState extends State<MyGoogleMap> {
               ),
             ),
           ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.location_pin),
+              label: 'Location',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: (int index) {
+            setState(() {
+              _selectedIndex = index;
+              // 추가: location이 클릭되면 인덱스를 1로 설정하여 GoogleMap 화면으로 이동
+              if (_selectedIndex == 0) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HealthInfoPage()),
+                );
+              }
+            });
+          },
         ),
       ),
     );

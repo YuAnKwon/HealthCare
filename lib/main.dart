@@ -1,25 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screen/main_screen.dart';
-import 'screen/googlemap_screen.dart';
+import 'screen/profile.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  int _selectedIndex = 0; // 바텀네비게이션 index
-
-  final List<Widget> _pages = [
-    HealthInfoPage(),
-    MyGoogleMap(),
-  ];
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -28,29 +16,55 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold(
-        body: Center(
-          child: _pages.elementAt(_selectedIndex),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+      home: MainApp(),
+    );
+  }
+}
+
+class MainApp extends StatefulWidget {
+  @override
+  _MainAppState createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  bool _hasProfile = false;
+  bool _profileChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserProfile();
+  }
+
+  // 기본정보 입력됐는지 여부 확인
+  Future<bool> _checkUserProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasProfile = prefs.getBool('hasProfile') ?? false;
+    return hasProfile;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _checkUserProfile(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(), // 로딩 중
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.location_pin),
-              label: 'Location',
+          );
+        }
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Error: ${snapshot.error}'),
             ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: (int index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-        ),
-      ),
+          );
+        }
+        // 프로필 확인 여부에 따라 첫 화면을 Profile 페이지 또는 HealthInfoPage로 설정
+        return snapshot.data! ? HealthInfoPage() : Profile();
+      },
     );
   }
 }
