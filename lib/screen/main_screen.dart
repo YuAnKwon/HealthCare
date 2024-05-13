@@ -88,12 +88,6 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
       appBar: AppBar(
         title: Text('${data?['last_workout_data']?['name'] ?? ''}님의 건강정보'),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            // 설정 액션 추가
-          },
-        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -266,4 +260,12 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
       MaterialPageRoute(builder: (context) => ChartPage(title: title)),
     );
   }
+  @override
+  void dispose() {
+    super.dispose();
+    if (_loading) {
+      _loading = false;
+    }
+  }
+
 }

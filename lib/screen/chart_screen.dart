@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:healthcare/graph/bar_chart.dart';
-import 'package:healthcare/graph/line_chart.dart';
+import 'package:healthcare/chart/bar_chart.dart';
+import 'package:healthcare/chart/line_chart.dart';
 import 'package:http/http.dart' as http;
 
 import '../network/fetch_data.dart';
@@ -27,6 +27,9 @@ class _ChartPageState extends State<ChartPage> {
   }
 
   Future<void> fetchData() async {
+    // 데이터를 가져오기 전에 이전 데이터 초기화
+    HealthDataList.clear();
+
     String fieldEndpoint = '';
     String periodEndpoint = '';
 
@@ -82,19 +85,9 @@ class _ChartPageState extends State<ChartPage> {
       });
       print(dataList);
     } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: const Text('오류발생'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('확인'),
-            ),
-          ],
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('오류 발생'),
         ),
       );
     }
@@ -326,41 +319,45 @@ class _ChartPageState extends State<ChartPage> {
       case '체중':
         return selectedIndex == 1
             ? SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(0, 10,0,0),
-              width: chartWidth,
-              child: MyLineChart(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  width: chartWidth,
+                  child: MyLineChart(
+                    dataList: HealthDataList,
+                    title: widget.title,
+                    selectedIndex: selectedIndex,
+                  ),
+                ))
+            : MyLineChart(
                 dataList: HealthDataList,
                 title: widget.title,
-                selectedIndex: selectedIndex,
-              ),
-            ))
-            : MyLineChart(
-            dataList: HealthDataList,
-            title: widget.title,
-            selectedIndex: selectedIndex);
+                selectedIndex: selectedIndex);
       case '이동거리':
       case '이동시간':
         return selectedIndex == 1
             ? SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Container(
-              width: chartWidth,
-              child: MyBarChart(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  width: chartWidth,
+                  child: MyBarChart(
+                    dataList: HealthDataList,
+                    title: widget.title,
+                    selectedIndex: selectedIndex,
+                  ),
+                ))
+            : MyBarChart(
                 dataList: HealthDataList,
                 title: widget.title,
-                selectedIndex: selectedIndex,
-              ),
-            ))
-            : MyBarChart(
-            dataList: HealthDataList,
-            title: widget.title,
-            selectedIndex: selectedIndex);
+                selectedIndex: selectedIndex);
       default:
         return Container(
           child: const Text('데이터 불러오기에 실패했습니다.'),
         );
     }
+  }
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

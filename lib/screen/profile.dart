@@ -79,6 +79,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
           print(prefs);
 
         } else {
+          print( response.body);
           _showErrorDialog('Error: ${response.statusCode}', response.body);
         }
 
