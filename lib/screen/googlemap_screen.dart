@@ -5,7 +5,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MyGoogleMap extends StatefulWidget {
-  const MyGoogleMap({Key? key}) : super(key: key);
+  final double latitude;
+  final double longitude;
+
+  MyGoogleMap({required this.latitude, required this.longitude});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -14,16 +17,16 @@ class MyGoogleMap extends StatefulWidget {
 class _MyAppState extends State<MyGoogleMap> {
   int _selectedIndex = 1;
 
-  String _address = '주소를 가져오는 중...';
+  String _address = '';
   late GoogleMapController mapController;
 
-  // 위도 경도
-  final LatLng _center = const LatLng(35.242622, 128.697004);
+  late LatLng _center;
   Set<Marker> _markers = {};
 
   @override
   void initState() {
     super.initState();
+    _center = LatLng(widget.latitude, widget.longitude);
     _getPlaceAddress();
   }
 

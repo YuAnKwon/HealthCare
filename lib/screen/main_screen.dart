@@ -5,6 +5,7 @@ import 'dart:convert';
 import '../network/ApiResource.dart';
 import 'chart_screen.dart';
 import 'googlemap_screen.dart';
+import 'package:http/http.dart' as http;
 
 class HealthInfoPage extends StatefulWidget {
   @override
@@ -241,15 +242,12 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
-            // 추가: location이 클릭되면 인덱스를 1로 설정하여 GoogleMap 화면으로 이동
             if (_selectedIndex == 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MyGoogleMap()),
-              );
+              _fetchLocation();
             }
           });
         },
+
       ),
     );
   }
@@ -260,11 +258,45 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
       MaterialPageRoute(builder: (context) => ChartPage(title: title)),
     );
   }
-  @override
-  void dispose() {
-    super.dispose();
-    if (_loading) {
-      _loading = false;
+
+  //위치 정보 가져오기
+  void _fetchLocation() async {
+    setState(() {
+      _loading = true; // 위치 가져오는 중임을 표시
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiResource.serverUrl}/location'),
+        headers: {"ngrok-skip-browser-warning": "22"},
+      );
+      if (response.statusCode == 200) {
+        final locationData = jsonDecode(response.body);
+        double latitude = double.parse(locationData['latitude']);
+        double longitude = double.parse(locationData['longitude']);
+
+        // 위치 정보를 받아왔으므로 MyGoogleMap 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MyGoogleMap(latitude: latitude, longitude: longitude)),
+        );
+
+        setState(() {
+          _loading = false; // 위치 가져오기 성공
+        });
+      } else {
+        throw Exception('위치정보 가져오기 실패');
+      }
+    } catch (error) {
+      setState(() {
+        _loading = false; // 위치 가져오기 실패
+      });
+      // 위치 가져오기 실패 메시지 표시
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('위치정보를 가져오는데 실패했습니다.'),
+        ),
+      );
     }
   }
 

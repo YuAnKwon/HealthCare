@@ -76,7 +76,6 @@ class _UserInfoFormState extends State<UserInfoForm> {
             context,
             MaterialPageRoute(builder: (context) => HealthInfoPage()),
           );
-          print(prefs);
 
         } else {
           print( response.body);
