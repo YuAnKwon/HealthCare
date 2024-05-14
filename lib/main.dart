@@ -4,13 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase/fcm_utils.dart';
 import 'screen/main_screen.dart';
 import 'screen/profile.dart';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:healthcare/firebase/firebase_options.dart';
 
-Future<void> main() async {
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -21,6 +22,10 @@ Future<void> main() async {
 
   await initializeNotification();
   await requestNotificationPermission(); // 알림 권한 요청
+
+  // 상호작용 메시지 설정
+  await setupInteractedMessage();
+
   runApp(MyApp());
 }
 
@@ -28,6 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -52,9 +58,11 @@ class _MainAppState extends State<MainApp> {
     super.initState();
     _checkUserProfile();
     getMyDeviceToken(); // FCM 토큰 가져오기
+
+    // FCM 메시지 수신 이벤트 처리
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       RemoteNotification? notification = message.notification;
-      Map<String, dynamic>? data = message.data; //위도경도
+      Map<String, dynamic>? data = message.data; // 위도 경도 정보가 포함된 데이터
 
       if (notification != null) {
         FlutterLocalNotificationsPlugin().show(
@@ -71,26 +79,33 @@ class _MainAppState extends State<MainApp> {
         );
         print("Foreground 메시지 수신: ${message.notification!.body} ${data}");
 
-        // 알림을 터치하면 MyGoogleMap 화면으로 이동
-        if (data != null &&
-            data.containsKey('latitude') &&
-            data.containsKey('longitude')) {
-          double latitude = double.parse(data['latitude']);
-          double longitude = double.parse(data['longitude']);
-
-          // MyGoogleMap 화면으로 이동
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-                builder: (context) => MyGoogleMap(latitude: latitude, longitude: longitude)
-            ),
-          );
-        } else {
-          print('데이터 페이로드에 위도와 경도가 없습니다.');
-        }
-
+        handleMessaging(message); // FCM 메시지 처리
       }
     });
+
+    // 백그라운드에서 FCM 메시지 수신 이벤트 처리
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
+
+  // 포그라운드일때 푸시알림을 받을 경우 바로 googlemap으로 이동.
+  void handleMessaging(RemoteMessage message) {
+    Map<String, dynamic>? data = message.data;
+
+    if (data != null &&
+        data.containsKey('latitude') &&
+        data.containsKey('longitude')) {
+      double latitude = double.parse(data['latitude']);
+      double longitude = double.parse(data['longitude']);
+
+      // MyGoogleMap 화면으로 이동
+      navigatorKey.currentState!.pushReplacement(
+        MaterialPageRoute(
+            builder: (context) => MyGoogleMap(latitude: latitude, longitude: longitude)
+        ),
+      );
+    } else {
+      print('데이터 페이로드에 위도와 경도가 없습니다.');
+    }
   }
 
   // 기본정보 입력됐는지 여부 확인
@@ -128,4 +143,19 @@ class _MainAppState extends State<MainApp> {
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("백그라운드 메시지 처리.. ${message.notification!.body} ${message.data}");
+}
+
+Future<void> setupInteractedMessage() async {
+  WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    // 앱이 종료된 상태에서 열릴 때 getInitialMessage 호출
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _MainAppState().handleMessaging(initialMessage); // 수정된 부분
+    }
+    // 앱이 백그라운드 상태일 때, 푸시 알림을 탭할 때
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _MainAppState().handleMessaging(message); // 수정된 부분
+    });
+  });
 }
