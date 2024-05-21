@@ -1,4 +1,4 @@
-// ------------맥박,산소포화도,체온,몸무게 UI----------------
+// ------------맥박,산소포화도,체온,몸무게 박스----------------
 import 'package:flutter/material.dart';
 
 class StatRow extends StatelessWidget {

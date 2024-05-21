@@ -66,9 +66,9 @@ class _UserInfoFormState extends State<UserInfoForm> {
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('데이터 저장 성공')),
+            SnackBar(content: Text('기본정보를 전송했습니다.')),
           );
-          // prefs에 저장여부 저장.
+          // prefs에 기본정보 송신여부 저장.
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setBool('hasProfile', true);
 
