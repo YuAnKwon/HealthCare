@@ -5,7 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:healthcare/network/ApiResource.dart';
 
-//토큰 전송
+//----------------토큰 전송-------------------------
 Future<void> sendTokenToServer(String token) async {
   final response = await http.post(
     Uri.parse('${ApiResource.serverUrl}/token'),
@@ -45,7 +45,7 @@ Future<void> initializeNotification() async {
 
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'), // 앱 아이콘
+      android: AndroidInitializationSettings('warning'), // 앱 아이콘
     ),
   );
 

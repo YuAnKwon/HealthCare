@@ -107,7 +107,7 @@ class _MyBarChartState extends State<MyBarChart> {
             if (widget.title == '이동시간') {
               valueText = rod.toY.toInt().toString();
             } else {
-              valueText = rod.toY.toStringAsFixed(1);
+              valueText = rod.toY.toString();
             }
             return BarTooltipItem(
               '$date\n$valueText ${widget.title == '이동시간' ? '분' : ' km'}',

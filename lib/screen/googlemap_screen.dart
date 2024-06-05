@@ -39,7 +39,7 @@ class _MyAppState extends State<MyGoogleMap> {
   }
 
   Future<String> getPlaceAddress({double lat = 0.0, double lng = 0.0}) async {
-    const String GOOGLE_API_KEY = "AIzaSyD9TaUFJEUu03auCjEchC1xzbxpgSZYnI8"; // 구글 맵 api
+    const String GOOGLE_API_KEY = "";
     final String geoAPI = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$GOOGLE_API_KEY&language=ko'; // 역지오코딩 api 주소
     final http.Response response = await http.get(Uri.parse(geoAPI));
 
@@ -56,7 +56,7 @@ class _MyAppState extends State<MyGoogleMap> {
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-    _updateMarkerAndShowInfoWindow(); // 마커를 업데이트하고 정보 창을 표시하는 메서드 호출
+    _updateMarkerAndShowInfoWindow();
   }
 
   void _updateMarkerAndShowInfoWindow() {
@@ -127,18 +127,17 @@ class _MyAppState extends State<MyGoogleMap> {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
-              label: 'Home',
+                label: 'home'
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.location_pin),
-              label: 'Location',
+                label: '위치정보'
             ),
           ],
           currentIndex: _selectedIndex,
           onTap: (int index) {
             setState(() {
               _selectedIndex = index;
-              // 추가: location이 클릭되면 인덱스를 1로 설정하여 GoogleMap 화면으로 이동
               if (_selectedIndex == 0) {
                 Navigator.push(
                   context,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:healthcare/widgets/main_screen_widgets.dart';
+//import 'package:healthcare/widgets/main_screen_widgets.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../network/ApiResource.dart';
 import 'chart_screen.dart';
 import 'googlemap_screen.dart';
-import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class HealthInfoPage extends StatefulWidget {
   @override
@@ -71,13 +71,15 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
     if (_loading) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child:  LoadingAnimationWidget.staggeredDotsWave(
+            color: Color(0xFFC7B3A3),
+            size: 50.0,
+          ),
         ),
       );
     }
 
     if (data == null) {
-      // 데이터 가져오기 실패 시 메시지 표시
       return Scaffold(
         body: Center(
           child: const Text('보행보조차가 켜져있는지 확인해주세요'),
@@ -106,123 +108,44 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
               ),
 
               // ---------------------6개 데이터 container----------------------
-              StatRow(
-                data: [
-                  StatData(
-                      title: '심박수',
-                      value:
-                          '${data?['last_workout_data']?['heart'] ?? ''} bpm',
-                      height: 100.0,
-                      imagePath: 'assets/pulse_icon.png'),
-                  StatData(
-                      title: '산소포화도',
-                      value: '${data?['last_workout_data']?['oxygen'] ?? ''} %',
-                      height: 100.0,
-                      imagePath: 'assets/oxygen_icon.png'),
-                ],
-                onTap: (title) => navigateToDetail(context, title),
-              ),
-              StatRow(
-                data: [
-                  StatData(
-                      title: '체온',
-                      value: '${data?['last_workout_data']?['temp'] ?? ''} °C',
-                      height: 100.0,
-                      imagePath: 'assets/temp_icon.png'),
-                  StatData(
-                      title: '체중',
-                      value:
-                          '${data?['last_workout_data']?['today_weight'] ?? ''} kg',
-                      height: 100.0,
-                      imagePath: 'assets/weight_icon.png'),
-                ],
-                onTap: (title) => navigateToDetail(context, title),
-              ),
+              // StatRow(
+              //   data: [
+              //     StatData(
+              //         title: '심박수',
+              //         value:
+              //             '${data?['last_workout_data']?['heart'] ?? ''} bpm',
+              //         height: 100.0,
+              //         imagePath: 'assets/pulse_icon.png'),
+              //     StatData(
+              //         title: '산소포화도',
+              //         value: '${data?['last_workout_data']?['oxygen'] ?? ''} %',
+              //         height: 100.0,
+              //         imagePath: 'assets/oxygen_icon.png'),
+              //   ],
+              //   onTap: (title) => navigateToDetail(context, title),
+              // ),
+              // StatRow(
+              //   data: [
+              //     StatData(
+              //         title: '체온',
+              //         value: '${(data?['last_workout_data']?['temp'] as double?)?.toStringAsFixed(1) ?? ''} °C',
+              //         height: 100.0,
+              //         imagePath: 'assets/temp_icon.png'),
+              //     StatData(
+              //         title: '체중',
+              //         value:
+              //             '${data?['last_workout_data']?['today_weight'] ?? ''} kg',
+              //         height: 100.0,
+              //         imagePath: 'assets/weight_icon.png'),
+              //   ],
+              //   onTap: (title) => navigateToDetail(context, title),
+              // ),
 
-              // '이동거리' 카드
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: InkWell(
-                  onTap: () => navigateToDetail(context, '이동거리'),
-                  child: Card(
-                    child: Container(
-                      height: 100.0,
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Image.asset('assets/distance_icon.png',
-                                  height: 24.0), // 이미지
-                              SizedBox(width: 8.0),
-                              Text(
-                                '이동거리',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.0),
-                          Text(
-                            '${data?['last_workout_data']?['distance'] ?? ''} km',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              // '이동시간' 카드
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: InkWell(
-                  onTap: () => navigateToDetail(context, '이동시간'),
-                  child: Card(
-                    child: Container(
-                      height: 100.0,
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Image.asset('assets/time_icon.png',
-                                  height: 24.0), // 이미지
-                              SizedBox(width: 8.0),
-                              Text(
-                                '이동시간',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.0),
-                          Text(
-                            '${formatWorkoutTime(data?['last_workout_data']?['workout_time'] ?? '')}',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              buildStatCard('심박수', '${data?['last_workout_data']?['heart'] ?? ''} bpm', 'assets/pulse_icon.png', () => navigateToDetail(context, '심박수')),
+              buildStatCard('산소포화도', '${data?['last_workout_data']?['oxygen'] ?? ''} %', 'assets/oxygen_icon.png', () => navigateToDetail(context, '산소포화도')),
+              buildStatCard('체온', '${(data?['last_workout_data']?['temp'] as double?)?.toStringAsFixed(1) ?? ''} °C', 'assets/temp_icon.png', () => navigateToDetail(context, '체온')),
+              buildStatCard('이동거리', '${data?['last_workout_data']?['distance'] ?? ''} km', 'assets/distance_icon.png', () => navigateToDetail(context, '이동거리')),
+              //buildStatCard('이동시간', '${formatWorkoutTime(data?['last_workout_data']?['workout_time'] ?? '')}', 'assets/time_icon.png', () => navigateToDetail(context, '이동시간')),
             ],
           ),
         ),
@@ -231,11 +154,11 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Home'
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.location_pin),
-            label: 'Location',
+              label: '위치정보'
           ),
         ],
         currentIndex: _selectedIndex,
@@ -298,6 +221,50 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         ),
       );
     }
+  }
+
+  // 심박수, 산소포화도, 체온, 이동거리 위젯
+  Widget buildStatCard(String title, String value, String imagePath, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: InkWell(
+        onTap: onTap,
+        child: Card(
+          child: Container(
+            height: 100.0,
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Image.asset(imagePath, height: 24.0), // 이미지
+                    SizedBox(width: 8.0),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
 }

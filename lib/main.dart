@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:healthcare/firebase/firebase_options.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -74,6 +75,7 @@ class _MainAppState extends State<MainApp> {
               'high_importance_channel',
               'high_importance_notification',
               importance: Importance.max,
+              icon: 'warning'
             ),
           ),
         );
@@ -123,7 +125,10 @@ class _MainAppState extends State<MainApp> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             body: Center(
-              child: CircularProgressIndicator(), // 로딩 중
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Color(0xFFC7B3A3),
+                size: 50.0,
+              ), // 로딩 중
             ),
           );
         }
@@ -141,9 +146,11 @@ class _MainAppState extends State<MainApp> {
   }
 }
 
+// 백그라운드 푸시 알림 처리
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("백그라운드 메시지 처리.. ${message.notification!.body} ${message.data}");
 }
+
 
 Future<void> setupInteractedMessage() async {
   WidgetsBinding.instance?.addPostFrameCallback((_) async {
@@ -151,11 +158,11 @@ Future<void> setupInteractedMessage() async {
     RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
 
     if (initialMessage != null) {
-      _MainAppState().handleMessaging(initialMessage); // 수정된 부분
+      _MainAppState().handleMessaging(initialMessage);
     }
     // 앱이 백그라운드 상태일 때, 푸시 알림을 탭할 때
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      _MainAppState().handleMessaging(message); // 수정된 부분
+      _MainAppState().handleMessaging(message);
     });
   });
 }

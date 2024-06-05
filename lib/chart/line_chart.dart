@@ -18,7 +18,7 @@ class MyLineChart extends StatefulWidget {
 
 class _MyLineChartState extends State<MyLineChart> {
   List<Color> gradientColors = [
-    const Color(0xffB3A5D1),
+    const Color(0xff8873B7),
     const Color(0xff8562BB),
   ];
 
