@@ -7,8 +7,9 @@ import 'dart:convert';
 class MyGoogleMap extends StatefulWidget {
   final double latitude;
   final double longitude;
+  final String? receivedDateTime;
 
-  MyGoogleMap({required this.latitude, required this.longitude});
+  MyGoogleMap({required this.latitude, required this.longitude,this.receivedDateTime});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -39,7 +40,7 @@ class _MyAppState extends State<MyGoogleMap> {
   }
 
   Future<String> getPlaceAddress({double lat = 0.0, double lng = 0.0}) async {
-    const String GOOGLE_API_KEY = "";
+    const String GOOGLE_API_KEY = "AIzaSyBYap-77-WMvTRv4n2QLPbxhd2c4ATyAfE";
     final String geoAPI = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$GOOGLE_API_KEY&language=ko'; // 역지오코딩 api 주소
     final http.Response response = await http.get(Uri.parse(geoAPI));
 
@@ -115,12 +116,23 @@ class _MyAppState extends State<MyGoogleMap> {
             ),
             Container(
               padding: EdgeInsets.all(16.0),
-              child: SelectableText(
-                _address,
-                style: TextStyle(fontSize: 16.0),
-                textAlign: TextAlign.center,
+              child: Column(
+                children: [
+                  SelectableText(
+                    _address,
+                    style: TextStyle(fontSize: 16.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (widget.receivedDateTime != null) // 수신 시간이 있을 경우에만 표시
+                    Text(
+                      '${widget.receivedDateTime != null ? widget.receivedDateTime!.substring(0, 16) : ''}에 전송한 위치',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                ],
               ),
-            ),
+            )
+
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -139,7 +151,7 @@ class _MyAppState extends State<MyGoogleMap> {
             setState(() {
               _selectedIndex = index;
               if (_selectedIndex == 0) {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => HealthInfoPage()),
                 );

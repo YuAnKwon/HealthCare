@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 //import 'package:healthcare/widgets/main_screen_widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../main.dart';
 import '../network/ApiResource.dart';
 import 'chart_screen.dart';
 import 'googlemap_screen.dart';
@@ -84,17 +86,36 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         body: Center(
           child: const Text('보행보조차가 켜져있는지 확인해주세요'),
         ),
+        bottomNavigationBar: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home'
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.location_pin),
+                  label: '위치정보'
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            onTap: (int index) {
+              handleBottomNavigationBarTap(index);
+            }
+        ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 1,
         title: Text('${data?['last_workout_data']?['name'] ?? ''}님의 건강정보'),
         centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -162,17 +183,61 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-            if (_selectedIndex == 1) {
-              _fetchLocation();
-            }
-          });
-        },
-
+          onTap: (int index) {
+            handleBottomNavigationBarTap(index);
+          }
       ),
     );
+  }
+  void handleBottomNavigationBarTap(int index) async {
+    setState(() {
+      _selectedIndex = index;
+      if (_selectedIndex == 1) {
+        showRecentPushNotificationLocation();
+      }
+    });
+  }
+
+  // 최근 푸시 알림 정보를 검색하는 메서드
+  Future<Map<String, dynamic>> getRecentPushNotification() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    double? latitude = prefs.getDouble('recentPushNotificationLatitude');
+    double? longitude = prefs.getDouble('recentPushNotificationLongitude');
+    String? receivedDateTime = prefs.getString('recentPushNotificationReceivedDateTime');
+    print('알려줘ㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓ${latitude}');
+    print(longitude);
+    print(receivedDateTime);
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+      'receivedDateTime': receivedDateTime,
+    };
+  }
+
+  Future<void> showRecentPushNotificationLocation() async {
+    Map<String, dynamic> recentPushNotification = await getRecentPushNotification();
+    double? latitude = recentPushNotification['latitude'];
+    double? longitude = recentPushNotification['longitude'];
+    String? receivedDateTime = recentPushNotification['receivedDateTime'];
+
+    if (latitude != null && longitude != null) {
+      navigatorKey.currentState!.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MyGoogleMap(
+            latitude: latitude,
+            longitude: longitude,
+            receivedDateTime: receivedDateTime,
+          ),
+        ),
+      );
+    } else {
+      // 최근 푸시 알림 정보가 없는 경우
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('최근 푸시 알림 정보를 찾을 수 없습니다.'),
+        ),
+      );
+    }
   }
 
   void navigateToDetail(BuildContext context, String title) {
@@ -182,57 +247,16 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
     );
   }
 
-  //위치 정보 가져오기
-  void _fetchLocation() async {
-    setState(() {
-      _loading = true; // 위치 가져오는 중임을 표시
-    });
-
-    try {
-      final response = await http.get(
-        Uri.parse('${ApiResource.serverUrl}/location'),
-        headers: {"ngrok-skip-browser-warning": "22"},
-      );
-      if (response.statusCode == 200) {
-        final locationData = jsonDecode(response.body);
-        double latitude = double.parse(locationData['latitude']);
-        double longitude = double.parse(locationData['longitude']);
-
-        // 위치 정보를 받아왔으므로 MyGoogleMap 화면으로 이동
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MyGoogleMap(latitude: latitude, longitude: longitude)),
-        );
-
-        setState(() {
-          _loading = false; // 위치 가져오기 성공
-        });
-      } else {
-        throw Exception('위치정보 가져오기 실패');
-      }
-    } catch (error) {
-      setState(() {
-        _loading = false; // 위치 가져오기 실패
-      });
-      // 위치 가져오기 실패 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('위치정보를 가져오는데 실패했습니다.'),
-        ),
-      );
-    }
-  }
-
   // 심박수, 산소포화도, 체온, 이동거리 위젯
   Widget buildStatCard(String title, String value, String imagePath, VoidCallback onTap) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(10.0),
       child: InkWell(
         onTap: onTap,
         child: Card(
           child: Container(
             height: 100.0,
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(13.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -246,6 +270,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                     Text(
                       title,
                       style: TextStyle(
+                        //fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -255,7 +280,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 20.0,
+                    fontSize: 23.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -266,5 +291,46 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
       ),
     );
   }
+
+//위치 정보 가져오기
+// void _fetchLocation() async {
+//   setState(() {
+//     _loading = true; // 위치 가져오는 중임을 표시
+//   });
+//
+//   try {
+//     final response = await http.get(
+//       Uri.parse('${ApiResource.serverUrl}/location'),
+//       headers: {"ngrok-skip-browser-warning": "22"},
+//     );
+//     if (response.statusCode == 200) {
+//       final locationData = jsonDecode(response.body);
+//       double latitude = double.parse(locationData['latitude']);
+//       double longitude = double.parse(locationData['longitude']);
+//
+//       // 위치 정보를 받아왔으므로 MyGoogleMap 화면으로 이동
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(builder: (context) => MyGoogleMap(latitude: latitude, longitude: longitude)),
+//       );
+//
+//       setState(() {
+//         _loading = false; // 위치 가져오기 성공
+//       });
+//     } else {
+//       throw Exception('위치정보 가져오기 실패');
+//     }
+//   } catch (error) {
+//     setState(() {
+//       _loading = false; // 위치 가져오기 실패
+//     });
+//     // 위치 가져오기 실패 메시지 표시
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text('위치정보를 가져오는데 실패했습니다.'),
+//       ),
+//     );
+//   }
+// }
 
 }

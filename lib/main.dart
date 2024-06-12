@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -81,6 +82,18 @@ class _MainAppState extends State<MainApp> {
         );
         print("Foreground 메시지 수신: ${message.notification!.body} ${data}");
 
+        // 푸시 알림이 오면 최근 푸시 알림 정보를 저장
+        if (data != null &&
+            data.containsKey('latitude') &&
+            data.containsKey('longitude')) {
+          double latitude = double.parse(data['latitude']);
+          double longitude = double.parse(data['longitude']);
+          String receivedDateTime = DateTime.now().toString(); // 푸시 알림 받은 시간
+
+          // 최근 푸시 알림 저장
+          saveRecentPushNotification(latitude, longitude, receivedDateTime);
+        }
+
         handleMessaging(message); // FCM 메시지 처리
       }
     });
@@ -88,6 +101,14 @@ class _MainAppState extends State<MainApp> {
     // 백그라운드에서 FCM 메시지 수신 이벤트 처리
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
+  // 푸시 알림 정보 저장 함수.
+  Future<void> saveRecentPushNotification(double latitude, double longitude, String receivedDateTime) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setDouble('recentPushNotificationLatitude', latitude);
+    prefs.setDouble('recentPushNotificationLongitude', longitude);
+    prefs.setString('recentPushNotificationReceivedDateTime', receivedDateTime);
+  }
+
 
   // 포그라운드일때 푸시알림을 받을 경우 바로 googlemap으로 이동.
   void handleMessaging(RemoteMessage message) {
