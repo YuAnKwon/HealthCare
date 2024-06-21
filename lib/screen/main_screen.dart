@@ -86,6 +86,19 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         body: Center(
           child: const Text('보행보조차가 켜져있는지 확인해주세요'),
         ),
+        appBar: AppBar(
+        elevation: 1,
+        title: Text(''),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              fetchData();
+            },
+          ),
+        ],
+      ),
         bottomNavigationBar: BottomNavigationBar(
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -110,64 +123,74 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         elevation: 1,
         title: Text('${data?['last_workout_data']?['name'] ?? ''}님의 건강정보'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              fetchData();
+            },
+          ),
+        ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  '${data?['last_workout_data']?['date'] ?? ''} ',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
+      body: Center(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    '${data?['last_workout_data']?['date'] ?? ''} ',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
 
-              // ---------------------6개 데이터 container----------------------
-              // StatRow(
-              //   data: [
-              //     StatData(
-              //         title: '심박수',
-              //         value:
-              //             '${data?['last_workout_data']?['heart'] ?? ''} bpm',
-              //         height: 100.0,
-              //         imagePath: 'assets/pulse_icon.png'),
-              //     StatData(
-              //         title: '산소포화도',
-              //         value: '${data?['last_workout_data']?['oxygen'] ?? ''} %',
-              //         height: 100.0,
-              //         imagePath: 'assets/oxygen_icon.png'),
-              //   ],
-              //   onTap: (title) => navigateToDetail(context, title),
-              // ),
-              // StatRow(
-              //   data: [
-              //     StatData(
-              //         title: '체온',
-              //         value: '${(data?['last_workout_data']?['temp'] as double?)?.toStringAsFixed(1) ?? ''} °C',
-              //         height: 100.0,
-              //         imagePath: 'assets/temp_icon.png'),
-              //     StatData(
-              //         title: '체중',
-              //         value:
-              //             '${data?['last_workout_data']?['today_weight'] ?? ''} kg',
-              //         height: 100.0,
-              //         imagePath: 'assets/weight_icon.png'),
-              //   ],
-              //   onTap: (title) => navigateToDetail(context, title),
-              // ),
+                // ---------------------6개 데이터 container----------------------
+                // StatRow(
+                //   data: [
+                //     StatData(
+                //         title: '심박수',
+                //         value:
+                //             '${data?['last_workout_data']?['heart'] ?? ''} bpm',
+                //         height: 100.0,
+                //         imagePath: 'assets/pulse_icon.png'),
+                //     StatData(
+                //         title: '산소포화도',
+                //         value: '${data?['last_workout_data']?['oxygen'] ?? ''} %',
+                //         height: 100.0,
+                //         imagePath: 'assets/oxygen_icon.png'),
+                //   ],
+                //   onTap: (title) => navigateToDetail(context, title),
+                // ),
+                // StatRow(
+                //   data: [
+                //     StatData(
+                //         title: '체온',
+                //         value: '${(data?['last_workout_data']?['temp'] as double?)?.toStringAsFixed(1) ?? ''} °C',
+                //         height: 100.0,
+                //         imagePath: 'assets/temp_icon.png'),
+                //     StatData(
+                //         title: '체중',
+                //         value:
+                //             '${data?['last_workout_data']?['today_weight'] ?? ''} kg',
+                //         height: 100.0,
+                //         imagePath: 'assets/weight_icon.png'),
+                //   ],
+                //   onTap: (title) => navigateToDetail(context, title),
+                // ),
 
-              buildStatCard('심박수', '${data?['last_workout_data']?['heart'] ?? ''} bpm', 'assets/pulse_icon.png', () => navigateToDetail(context, '심박수')),
-              buildStatCard('산소포화도', '${data?['last_workout_data']?['oxygen'] ?? ''} %', 'assets/oxygen_icon.png', () => navigateToDetail(context, '산소포화도')),
-              buildStatCard('체온', '${(data?['last_workout_data']?['temp'] as double?)?.toStringAsFixed(1) ?? ''} °C', 'assets/temp_icon.png', () => navigateToDetail(context, '체온')),
-              buildStatCard('이동거리', '${data?['last_workout_data']?['distance'] ?? ''} km', 'assets/distance_icon.png', () => navigateToDetail(context, '이동거리')),
-              //buildStatCard('이동시간', '${formatWorkoutTime(data?['last_workout_data']?['workout_time'] ?? '')}', 'assets/time_icon.png', () => navigateToDetail(context, '이동시간')),
-            ],
+                buildStatCard('심박수', '${data?['last_workout_data']?['heart'] ?? ''} bpm', 'assets/pulse_icon.png', () => navigateToDetail(context, '심박수')),
+                buildStatCard('산소포화도', '${data?['last_workout_data']?['oxygen'] ?? ''} %', 'assets/oxygen_icon.png', () => navigateToDetail(context, '산소포화도')),
+                buildStatCard('체온', '${(data?['last_workout_data']?['temp'] as double?)?.toStringAsFixed(1) ?? ''} °C', 'assets/temp_icon.png', () => navigateToDetail(context, '체온')),
+                buildStatCard('이동거리', '${data?['last_workout_data']?['distance'] ?? ''} km', 'assets/distance_icon.png', () => navigateToDetail(context, '이동거리')),
+                //buildStatCard('이동시간', '${formatWorkoutTime(data?['last_workout_data']?['workout_time'] ?? '')}', 'assets/time_icon.png', () => navigateToDetail(context, '이동시간')),
+              ],
+            ),
           ),
         ),
       ),
@@ -204,9 +227,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
     double? latitude = prefs.getDouble('recentPushNotificationLatitude');
     double? longitude = prefs.getDouble('recentPushNotificationLongitude');
     String? receivedDateTime = prefs.getString('recentPushNotificationReceivedDateTime');
-    print('알려줘ㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓㅓ${latitude}');
-    print(longitude);
-    print(receivedDateTime);
+
     return {
       'latitude': latitude,
       'longitude': longitude,
@@ -255,7 +276,7 @@ class _HealthInfoPageState extends State<HealthInfoPage> {
         onTap: onTap,
         child: Card(
           child: Container(
-            height: 100.0,
+            height: 103.0,
             padding: const EdgeInsets.all(13.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
