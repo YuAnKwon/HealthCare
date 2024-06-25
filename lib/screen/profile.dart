@@ -10,6 +10,7 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: '사용자 기본 정보 입력',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -122,7 +123,9 @@ class _UserInfoFormState extends State<UserInfoForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                const SizedBox(height: 30),
                 InputBox(
+                  height: 80,
                   child: TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(labelText: '이름:', border: InputBorder.none),
@@ -139,6 +142,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                 ),
                 const SizedBox(height: 10),
                 InputBox(
+                  height: 80,
                   child: TextFormField(
                     controller: _ageController,
                     decoration: const InputDecoration(labelText: '나이:', border: InputBorder.none),
@@ -156,6 +160,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                 ),
                 const SizedBox(height: 10),
                 InputBox(
+                  height: 80,
                   child: TextFormField(
                     controller: _heightController,
                     decoration: const InputDecoration(labelText: '키 (cm):', border: InputBorder.none),
@@ -173,6 +178,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                 ),
                 const SizedBox(height: 10),
                 InputBox(
+                  height: 80,
                   child: TextFormField(
                     controller: _weightController,
                     decoration: const InputDecoration(labelText: '체중 (kg):', border: InputBorder.none),
@@ -206,12 +212,14 @@ class _UserInfoFormState extends State<UserInfoForm> {
 
 class InputBox extends StatelessWidget {
   final Widget child;
+  final double height;
 
-  const InputBox({Key? key, required this.child}) : super(key: key);
+  const InputBox({Key? key, required this.child, this.height = 50.0}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height, // Set the height here
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.grey[200],
