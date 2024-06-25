@@ -1,3 +1,5 @@
+//  푸시알림과 같이 수신된 위도 경도 데이터를 구글맵을 이용하여 화면에 표시
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:healthcare/screen/main_screen.dart';
