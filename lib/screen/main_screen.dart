@@ -1,3 +1,5 @@
+// 하루치 데이터를 표시하는 화면
+
 import 'package:flutter/material.dart';
 //import 'package:healthcare/widgets/main_screen_widgets.dart';
 import 'package:http/http.dart' as http;
