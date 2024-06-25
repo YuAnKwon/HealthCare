@@ -1,3 +1,5 @@
+// 7일, 31일, 12개월 데이터를 막대그래프로 표시
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../network/fetch_data.dart';
