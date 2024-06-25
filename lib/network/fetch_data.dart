@@ -1,3 +1,5 @@
+//mainscreen의 화면에 표시할 데이터 수신
+
 class HealthData {
   final String date;
   final dynamic value;
