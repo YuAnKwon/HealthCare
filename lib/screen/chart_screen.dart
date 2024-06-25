@@ -1,3 +1,5 @@
+// 7일, 31일, 12개월 데이터를 수신하고 시각화 하는 코드
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
