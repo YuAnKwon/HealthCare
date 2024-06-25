@@ -123,7 +123,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 InputBox(
                   height: 80,
                   child: TextFormField(
@@ -140,7 +140,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 InputBox(
                   height: 80,
                   child: TextFormField(
@@ -158,7 +158,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 InputBox(
                   height: 80,
                   child: TextFormField(
@@ -176,7 +176,7 @@ class _UserInfoFormState extends State<UserInfoForm> {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 InputBox(
                   height: 80,
                   child: TextFormField(
