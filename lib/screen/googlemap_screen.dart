@@ -42,7 +42,7 @@ class _MyAppState extends State<MyGoogleMap> {
   }
 
   Future<String> getPlaceAddress({double lat = 0.0, double lng = 0.0}) async {
-    const String GOOGLE_API_KEY = "AIzaSyBYap-77-WMvTRv4n2QLPbxhd2c4ATyAfE";
+    const String GOOGLE_API_KEY = "YOUR-API-KEY";
     final String geoAPI = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$GOOGLE_API_KEY&language=ko'; // 역지오코딩 api 주소
     final http.Response response = await http.get(Uri.parse(geoAPI));
 
