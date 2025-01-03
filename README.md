@@ -1,4 +1,4 @@
-# healthcare
+# Healthcare
 
 A new Flutter project.
 
