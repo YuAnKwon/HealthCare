@@ -1,3 +1,3 @@
 class ApiResource {
-  static const serverUrl = "https://silverfox.maiboyy.one";
+  static const serverUrl = "";
 }
